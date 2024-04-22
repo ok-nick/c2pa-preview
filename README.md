@@ -18,11 +18,11 @@
 </div>
 
 ## Example Images
-Download the example images below and try it for yourself!
+Download the example images below and try it for yourself! For more example images, be sure to check out [this page](https://c2pa.org/public-testfiles/image/).
 
 <div align="center">
-    <img src="./assets/examples/example1.jpg" style="height: 230px;">
-    <img src="./assets/examples/example3.jpg" style="height: 230px;">
-    <img src="./assets/examples/example2.jpg" style="height: 230px;">
-    <img src="./assets/examples/example4.jpg" style="height: 230px;">
+    <img src="./assets/examples/example1.jpg" style="max-height: 230px;">
+    <img src="./assets/examples/example3.jpg" style="max-height: 230px;">
+    <img src="./assets/examples/example2.jpg" style="max-height: 230px;">
+    <img src="./assets/examples/example4.jpg" style="max-height: 230px;">
 </div>
