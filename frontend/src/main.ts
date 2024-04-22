@@ -228,6 +228,11 @@ async function main() {
     errorScreen.style.display = "none";
   });
 
+  await listen("error", async (event) => {
+    // Avoid incrementing USN so we don't possibly affect an inspection in process
+    await displayError(event.payload as string, globalUSN);
+  });
+
   // Tell the backend that the frontend is ready for inspect requests
   await emit("ready");
 }
