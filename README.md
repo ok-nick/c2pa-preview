@@ -11,3 +11,18 @@
 
 `c2pa-preview` is a desktop application to display [content credentials](https://contentcredentials.org) for the [C2PA standard](https://c2pa.org) embedded within images, videos, and other types of files. 
 
+<div align="center">
+  <img src="./assets/screenshots/preview.png" width="45%">
+  <img src="./assets/screenshots/home.png" width="45%">
+  <img src="./assets/screenshots/finder.png">
+</div>
+
+## Example Images
+Download the example images below and try it for yourself!
+
+<div align="center">
+    <img src="./assets/examples/example1.jpg" style="height: 230px;">
+    <img src="./assets/examples/example3.jpg" style="height: 230px;">
+    <img src="./assets/examples/example2.jpg" style="height: 230px;">
+    <img src="./assets/examples/example4.jpg" style="height: 230px;">
+</div>

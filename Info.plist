@@ -3,46 +3,43 @@
 <plist version="1.0">
 	<dict>
 		<key>NSServices</key>
-		<array>  
+		<array>
 			<dict>
 				<key>NSMenuItem</key>
 				<dict>
 					<key>default</key>
 					<string>Content Credentials</string>
 				</dict>
-
 				<key>NSMessage</key>
 				<string>inspectCredentialsWithPasteboard</string>
-
 				<key>NSPortName</key>
 				<string>c2pa-preview</string>
-
 				<key>NSRequiredContext</key>
-		    <dict>
-		        <key>NSTextContent</key>
-		        <string>FilePath</string>
-		    </dict>
-
+				<dict>
+					<key>NSTextContent</key>
+					<string>FilePath</string>
+				</dict>
 				<key>NSSendFileTypes</key>
 				<array>
-          <string>public.avi</string>
-          <string>public.avif</string>
-          <string>public.dng</string>
-          <string>public.heic</string>
-          <string>public.heif</string>
-          <string>public.jpeg</string>
-          <string>public.m4a</string>
-          <string>public.mp3</string>
-          <string>public.mpeg-4</string>
-          <string>public.pdf</string>
-          <string>public.png</string>
-          <string>public.svg-image</string>
-          <string>public.tiff</string>
-          <string>public.wav</string>
-          <string>public.webp</string>
+					<string>public.avi</string>
+					<string>public.avif</string>
+					<string>public.dng</string>
+					<string>public.heic</string>
+					<string>public.heif</string>
+					<string>public.jpeg</string>
+					<string>public.m4a</string>
+					<string>public.mp3</string>
+					<string>public.mpeg-4</string>
+					<string>public.pdf</string>
+					<string>public.png</string>
+					<string>public.svg-image</string>
+					<string>public.tiff</string>
+					<string>public.wav</string>
+					<string>public.webp</string>
 				</array>
 			</dict>
 		</array>
 	</dict>
 </plist>
+
 
