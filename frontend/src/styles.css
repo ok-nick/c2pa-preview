@@ -1,0 +1,213 @@
+* body {
+  margin: 0;
+  padding: 0;
+}
+
+.theme-spectrum {
+  --cai-font-family: adobe-clean, 'Adobe Clean', Arial, Helvetica, sans-serif;
+  --cai-font-size-md: 0.875rem;
+  --cai-font-size-sm: 0.8125rem;
+  --cai-popover-bg-color: #fff;
+
+  --cai-thumbnail-size: 90px;
+
+  color: #2c2c2c;
+
+  &::part(manifest-summary-view-more) {
+    border: none;
+    background-color: #1473e6;
+    color: #fff;
+  }
+
+  &::part(manifest-summary-view-more):hover {
+    background-color: #0d66d0;
+  }
+
+  &::part(manifest-summary-view-more):hover:active {
+    background-color: #095aba;
+  }
+}
+
+.upload-instructions {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.supported-formats {
+  text-align: center;
+  margin-top: 10px;
+  font-size: 0.8rem;
+  color: #666;
+}
+
+.upload-instructions,
+.supported-formats {
+  font-family: adobe-clean, 'Adobe Clean', Arial, Helvetica, sans-serif;
+}
+
+.hyperlink-style {
+  color: #007bff;
+}
+
+.home-container {
+  display: flex-start;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  height: 100vh - 10px;
+  padding: 10px;
+}
+
+.home {
+  border: 2px dashed #ccc;
+  border-radius: 10px;
+  padding: 20px;
+  transition: background-color 0.3s ease;
+  text-align: center;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+
+.home:hover,
+.home.dragging {
+  background-color: rgb(244, 249, 254);
+  border-color: rgb(147, 197, 247);
+}
+
+.upload-icon {
+  width: 50px;
+  height: 50px;
+}
+
+.loader-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  width: 100wh;
+}
+
+/* https://tobiasahlin.com/spinkit/ */
+.loader {
+  width: 40px;
+  height: 40px;
+}
+
+.loader .sk-cube {
+  width: 33%;
+  height: 33%;
+  background-color: #333;
+  float: left;
+  -webkit-animation: loaderScaleDelay 1.3s infinite ease-in-out;
+  animation: loaderScaleDelay 1.3s infinite ease-in-out;
+}
+
+.loader .sk-cube1 {
+  -webkit-animation-delay: 0.2s;
+  animation-delay: 0.2s;
+}
+
+.loader .sk-cube2 {
+  -webkit-animation-delay: 0.3s;
+  animation-delay: 0.3s;
+}
+
+.loader .sk-cube3 {
+  -webkit-animation-delay: 0.4s;
+  animation-delay: 0.4s;
+}
+
+.loader .sk-cube4 {
+  -webkit-animation-delay: 0.1s;
+  animation-delay: 0.1s;
+}
+
+.loader .sk-cube5 {
+  -webkit-animation-delay: 0.2s;
+  animation-delay: 0.2s;
+}
+
+.loader .sk-cube6 {
+  -webkit-animation-delay: 0.3s;
+  animation-delay: 0.3s;
+}
+
+.loader .sk-cube7 {
+  -webkit-animation-delay: 0s;
+  animation-delay: 0s;
+}
+
+.loader .sk-cube8 {
+  -webkit-animation-delay: 0.1s;
+  animation-delay: 0.1s;
+}
+
+.loader .sk-cube9 {
+  -webkit-animation-delay: 0.2s;
+  animation-delay: 0.2s;
+}
+
+@-webkit-keyframes loaderScaleDelay {
+
+  0%,
+  70%,
+  100% {
+    -webkit-transform: scale3D(1, 1, 1);
+    transform: scale3D(1, 1, 1);
+  }
+
+  35% {
+    -webkit-transform: scale3D(0, 0, 1);
+    transform: scale3D(0, 0, 1);
+  }
+}
+
+@keyframes loaderScaleDelay {
+
+  0%,
+  70%,
+  100% {
+    -webkit-transform: scale3D(1, 1, 1);
+    transform: scale3D(1, 1, 1);
+  }
+
+  35% {
+    -webkit-transform: scale3D(0, 0, 1);
+    transform: scale3D(0, 0, 1);
+  }
+}
+
+#error-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(255, 0, 0, 0.6);
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+  padding: 10px;
+  overflow-y: auto;
+  z-index: 100;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  box-sizing: border-box;
+}
+
+#error-screen:hover {
+  background-color: rgba(255, 0, 0, 0.7);
+}
+
+.error-message {
+  color: white;
+  font-size: 1em;
+  text-align: left;
+  word-wrap: break-word;
+  overflow: hidden;
+  font-family: adobe-clean, 'Adobe Clean', Arial, Helvetica, sans-serif;
+}

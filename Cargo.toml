@@ -1,0 +1,51 @@
+[package]
+name = "c2pa-preview"
+version = "0.1.0"
+description = "Preview C2PA content credentials on desktop"
+edition = "2021"
+
+[build-dependencies]
+tauri-build = { version = "1.5.1", features = [] }
+
+[dependencies]
+tauri = { version = "1.6.1", features = [
+  "shell-open",
+  "dialog-open",
+  "fs-read-file",
+  "window-set-size",
+  "cli",
+] }
+serde = { version = "1.0.197", features = ["derive"] }
+toml = "0.8.12"
+
+# TODO: cleanup features on objc2 crates
+[target.'cfg(target_os = "macos")'.dependencies]
+objc2-uniform-type-identifiers = { version = "0.2.0", features = [
+  "UTCoreTypes",
+  "UTType",
+] }
+objc2-app-kit = { version = "0.2.0", features = [
+  "NSApplication",
+  "NSResponder",
+  "NSPasteboard",
+] }
+objc2-foundation = { version = "0.2.0", features = [
+  "NSExtensionRequestHandling",
+  "NSExtensionContext",
+  "NSExtensionItem",
+  "NSArray",
+  "NSItemProvider",
+  "NSDictionary",
+  "NSError",
+  "NSObject",
+  "NSString",
+  "block2",
+  "NSThread",
+  "dispatch",
+  "NSRunLoop",
+] }
+objc2 = "0.5.1"
+
+[features]
+# This feature is used for production builds or when a dev server is not specified, DO NOT REMOVE!!
+custom-protocol = ["tauri/custom-protocol"]

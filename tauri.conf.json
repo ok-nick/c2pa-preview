@@ -1,0 +1,74 @@
+{
+  "build": {
+    "beforeDevCommand": "npm run dev",
+    "beforeBuildCommand": "npm run build",
+    "devPath": "http://localhost:1420",
+    "distDir": "frontend/dist",
+    "withGlobalTauri": true
+  },
+  "package": {
+    "productName": "c2pa-preview",
+    "version": "0.1.0"
+  },
+  "tauri": {
+    "allowlist": {
+      "fs": {
+        "readFile": true
+      },
+      "window": {
+        "setSize": true
+      },
+      "shell": {
+        "open": true
+      },
+      "dialog": {
+        "open": true
+      }
+    },
+    "windows": [
+      {
+        "title": "c2pa-preview",
+        "width": 320,
+        "height": 242,
+        "resizable": false
+      }
+    ],
+    "security": {
+      "csp": null
+    },
+    "bundle": {
+      "active": true,
+      "targets": "all",
+      "identifier": "com.c2pa-preview.dev",
+      "icon": [
+        "assets/icons/32x32.png",
+        "assets/icons/128x128.png",
+        "assets/icons/128x128@2x.png",
+        "assets/icons/icon.icns",
+        "assets/icons/icon.ico",
+        "assets/icons/icon.png",
+        "assets/icons/Square30x30Logo.png",
+        "assets/icons/Square44x44Logo.png",
+        "assets/icons/Square71x71Logo.png",
+        "assets/icons/Square89x89Logo.png",
+        "assets/icons/Square107x107Logo.png",
+        "assets/icons/Square142x142Logo.png",
+        "assets/icons/Square150x150Logo.png",
+        "assets/icons/Square284x284Logo.png",
+        "assets/icons/Square310x310Logo.png",
+        "assets/icons/StoreLogo.png"
+      ]
+    },
+    "cli": {
+      "description": "",
+      "args": [
+        {
+          "name": "path",
+          "description": "",
+          "index": 1,
+          "takesValue": true
+        }
+      ]
+    }
+  }
+}
