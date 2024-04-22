@@ -44,18 +44,7 @@
         "assets/icons/128x128.png",
         "assets/icons/128x128@2x.png",
         "assets/icons/icon.icns",
-        "assets/icons/icon.ico",
-        "assets/icons/icon.png",
-        "assets/icons/Square30x30Logo.png",
-        "assets/icons/Square44x44Logo.png",
-        "assets/icons/Square71x71Logo.png",
-        "assets/icons/Square89x89Logo.png",
-        "assets/icons/Square107x107Logo.png",
-        "assets/icons/Square142x142Logo.png",
-        "assets/icons/Square150x150Logo.png",
-        "assets/icons/Square284x284Logo.png",
-        "assets/icons/Square310x310Logo.png",
-        "assets/icons/StoreLogo.png"
+        "assets/icons/icon.ico"
       ]
     },
     "cli": {
