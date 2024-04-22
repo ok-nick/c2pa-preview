@@ -37,6 +37,8 @@ jobs:
         with:
           targets: ${{ matrix.settings.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
 
+      - uses: Swatinem/rust-cache@v2
+
       - name: install dependencies (ubuntu only)
         if: matrix.settings.platform == 'ubuntu-22.04'
         run: |
