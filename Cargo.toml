@@ -9,14 +9,12 @@ tauri-build = { version = "1.5.1", features = [] }
 
 [dependencies]
 tauri = { version = "1.6.1", features = [
-  "shell-open",
   "dialog-open",
+  "shell-open",
   "fs-read-file",
   "window-set-size",
   "cli",
 ] }
-serde = { version = "1.0.197", features = ["derive"] }
-toml = "0.8.12"
 
 # TODO: cleanup features on objc2 crates
 [target.'cfg(target_os = "macos")'.dependencies]

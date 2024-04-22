@@ -1,2 +1,2 @@
-# `c2pa-desktop`
+# `c2pa-preview`
 
