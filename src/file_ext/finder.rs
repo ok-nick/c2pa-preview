@@ -61,7 +61,7 @@ declare_class!(
                                 None => inspect.error_string("Failed to read path from context menu because: path does not conform to RFC 1808 or the file no longer exists".to_owned())
                             }
                         }
-                        None => inspect.error_string("Failed to read path from context menu because path does not conform to RC 1808".to_owned())
+                        None => inspect.error_string("Failed to read path from context menu because path does not conform to RFC 1808".to_owned())
                     }
                 }
                 None => inspect.error_string("Failed to read path from context menu".to_owned())

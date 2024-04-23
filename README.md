@@ -17,6 +17,25 @@
   <img src="./assets/screenshots/finder.png">
 </div>
 
+## Installation
+### Installing from GitHub Releases
+Pre-built binaries are available for macOS, Windows, and Linux from the [GitHub Releases page](https://github.com/ok-nick/c2pa-preview/releases).
+
+### Installing from Source
+Install the prerequisites from [Tauri docs](https://tauri.app/v1/guides/getting-started/prerequisites#installing).
+
+Then, install frontend packages (recommended [npm](https://www.npmjs.com)):
+```bash
+$ cd frontend
+$ npm install
+$ cd ..
+```
+
+Next, build the app (ensure [tauri-cli](https://crates.io/crates/tauri-cli) is installed):
+```bash
+$ cargo tauri build
+```
+
 ## Example Images
 Download the example images below and try it for yourself! For more example images, be sure to check out [this page](https://c2pa.org/public-testfiles/image/).
 
