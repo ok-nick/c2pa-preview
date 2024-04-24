@@ -50,27 +50,30 @@
 }
 
 .home-container {
-  display: flex-start;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
   justify-content: center;
   align-items: center;
-  flex-direction: column;
-  height: 100vh - 10px;
   padding: 10px;
+  box-sizing: border-box;
 }
 
 .home {
   border: 2px dashed #ccc;
   border-radius: 10px;
-  padding: 20px;
-  transition: background-color 0.3s ease;
-  text-align: center;
-  cursor: pointer;
   display: flex;
   flex-direction: column;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
+  text-align: center;
+  width: 100%;
+  height: 100%;
+  padding: 20px;
+  box-sizing: border-box;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
 }
-
 
 .home:hover,
 .home.dragging {

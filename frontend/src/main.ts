@@ -16,6 +16,7 @@ import "c2pa-wc";
 import wasmSrc from "c2pa/dist/assets/wasm/toolkit_bg.wasm?url";
 // @ts-ignore
 import workerSrc from "c2pa/dist/c2pa.worker.js?url";
+import { os } from "@tauri-apps/api";
 
 // Update Sequence Number
 let globalUSN = 0;
@@ -96,8 +97,12 @@ async function display(path: string, manifest: L2ManifestStore, usn: number) {
     manifestSummary.style.display = "block";
 
     const rect = manifestSummary.getBoundingClientRect();
-    // TODO: not sure why it's always 28 pixels short
-    await appWindow.setSize(new LogicalSize(320, rect.height + 28));
+    // https://github.com/tauri-apps/tauri/issues/6333
+    if ((await os.platform()) == "darwin") {
+      rect.height += 28;
+    }
+
+    await appWindow.setSize(new LogicalSize(320, rect.height));
   });
 }
 
