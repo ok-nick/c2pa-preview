@@ -165,7 +165,6 @@ async function main() {
     try {
       path = await open({
         filters: [
-          { name: "Videos", extensions: ["avi", "mp4"] },
           {
             name: "Images",
             extensions: [
@@ -181,6 +180,7 @@ async function main() {
               "tiff",
             ],
           },
+          { name: "Videos", extensions: ["avi", "mp4"] },
           { name: "Audio", extensions: ["m4a", "mp3", "wav"] },
           { name: "Documents", extensions: ["pdf"] },
         ],
