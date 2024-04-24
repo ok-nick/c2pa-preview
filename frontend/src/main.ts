@@ -41,7 +41,7 @@ async function displayLoading() {
   homeContainer.style.display = "none";
   loaderContainer.style.display = "flex";
 
-  await appWindow.setSize(new LogicalSize(320, 242));
+  await appWindow.setSize(new LogicalSize(304, 242));
 }
 
 async function displayHome() {
@@ -59,7 +59,7 @@ async function displayHome() {
   loaderContainer.style.display = "none";
   homeContainer.style.display = "block";
 
-  await appWindow.setSize(new LogicalSize(320, 242));
+  await appWindow.setSize(new LogicalSize(304, 242));
 }
 
 async function displayError(error: string, usn: number) {
@@ -97,12 +97,13 @@ async function display(path: string, manifest: L2ManifestStore, usn: number) {
     manifestSummary.style.display = "block";
 
     const rect = manifestSummary.getBoundingClientRect();
+    console.log(rect);
     // https://github.com/tauri-apps/tauri/issues/6333
     if ((await os.platform()) == "darwin") {
       rect.height += 28;
     }
 
-    await appWindow.setSize(new LogicalSize(320, rect.height));
+    await appWindow.setSize(new LogicalSize(304, rect.height));
   });
 }
 
