@@ -5,12 +5,7 @@ import { readFile } from "@tauri-apps/plugin-fs";
 import { open } from "@tauri-apps/plugin-dialog";
 import { emit, listen } from "@tauri-apps/api/event";
 import { type } from "@tauri-apps/plugin-os";
-import {
-  DragDropEvent,
-  DragDropPayload,
-  getCurrent,
-  LogicalSize,
-} from "@tauri-apps/api/window";
+import { getCurrent, LogicalSize } from "@tauri-apps/api/window";
 import {
   createC2pa,
   createL2ManifestStore,
@@ -29,6 +24,21 @@ let globalUSN = 0;
 function incrementUSN() {
   globalUSN += 1;
   return globalUSN;
+}
+
+async function manifestFromBlob(blob: Blob) {
+  // TODO: cache this?
+  const c2pa = await createC2pa({
+    wasmSrc,
+    workerSrc,
+  });
+
+  const { manifestStore } = await c2pa.read(blob);
+  if (!manifestStore) {
+    return Promise.reject(new Error(`Failed to read manifest store`));
+  }
+
+  return (await createL2ManifestStore(manifestStore)).manifestStore;
 }
 
 async function displayLoading() {
@@ -84,7 +94,7 @@ async function displayError(error: string, usn: number) {
   await displayHome();
 }
 
-async function display(path: string, manifest: L2ManifestStore, usn: number) {
+async function display(manifest: L2ManifestStore, usn: number) {
   // Ignore this request, another file is being displayed
   if (usn != globalUSN) {
     return;
@@ -92,7 +102,8 @@ async function display(path: string, manifest: L2ManifestStore, usn: number) {
 
   const manifestSummary = document.querySelector("cai-manifest-summary") as any; // TODO: type
   manifestSummary.manifestStore = manifest;
-  manifestSummary.viewMoreUrl = generateVerifyUrl(path);
+  // TODO: currently not possible to pass file without uploading to server first
+  manifestSummary.viewMoreUrl = generateVerifyUrl("");
 
   requestAnimationFrame(async () => {
     const loaderContainer = document.querySelector(
@@ -111,40 +122,29 @@ async function display(path: string, manifest: L2ManifestStore, usn: number) {
   });
 }
 
-async function displayWithPath(path: string, usn: number) {
+async function displayWithBlob(blob: Blob, usn: number) {
   await displayLoading();
 
   try {
-    const manifest = await manifestFromPath(path);
-    display(path, manifest, usn);
+    const manifest = await manifestFromBlob(blob);
+    display(manifest, usn);
   } catch (err) {
-    await displayError(`Error reading manifest for "${path}": ${err}`, usn);
+    await displayError(`Error reading manifest": ${err}`, usn);
   }
 }
 
-async function manifestFromPath(path: string) {
-  const mimeType = mime.getType(path);
+async function displayWithPath(path: string, usn: number, mimeType?: string) {
   if (!mimeType) {
-    return Promise.reject(new Error(`MIME type not found for "${path}"`));
+    const foundMimeType = mime.getType(path);
+    if (foundMimeType) {
+      mimeType = foundMimeType;
+    } else {
+      return Promise.reject(new Error(`MIME type not found for "${path}"`));
+    }
   }
 
   const data = await readFile(path);
-  const blob = new Blob([data], { type: mimeType });
-
-  // TODO: cache this?
-  const c2pa = await createC2pa({
-    wasmSrc,
-    workerSrc,
-  });
-
-  const { manifestStore } = await c2pa.read(blob);
-  if (!manifestStore) {
-    return Promise.reject(
-      new Error(`Failed to read manifest store for ${path}`),
-    );
-  }
-
-  return (await createL2ManifestStore(manifestStore)).manifestStore;
+  return displayWithBlob(new Blob([data], { type: mimeType }), usn);
 }
 
 async function main() {
@@ -195,9 +195,8 @@ async function main() {
     }
 
     if (file) {
-      // TODO: file.mimeType, don't need mime crate
       // Error is handled inside of this function, nothing to catch
-      await displayWithPath(file.path, usn);
+      await displayWithPath(file.path, usn, file.mimeType);
     }
   });
 
@@ -213,17 +212,38 @@ async function main() {
     home.classList.remove("dragging");
   });
 
-  // TODO: display screen when file hover (not possible in tauri 1.0 iirc)
-  // TODO: disable dragDropEnabled in tauri.conf.json and use native stuff,
-  //       tauri v2 breaks the events above
+  // TODO: display screen when file hover
 
-  // Files drag and dropped
-  listen<DragDropPayload>("tauri://drop", async (event) => {
-    await displayWithPath(event.payload.paths[0], incrementUSN());
+  document.addEventListener("dragover", (event) => {
+    event.preventDefault();
   });
 
-  // TODO: the "View More" sends to content credentials website, but it only accepts
-  // files on the internet, not sure if it can do local ones?
+  document.addEventListener("drop", async (event) => {
+    event.preventDefault();
+
+    const files = event.dataTransfer?.files;
+    if (files && files.length >= 1) {
+      const file = files[0];
+
+      const reader = new FileReader();
+      reader.addEventListener(
+        "load",
+        (e) => {
+          const data = e.target?.result;
+          if (data instanceof ArrayBuffer) {
+            displayWithBlob(
+              new Blob([data], { type: file.type }),
+              incrementUSN(),
+            );
+          }
+        },
+        false,
+      );
+
+      reader.readAsArrayBuffer(file);
+    }
+  });
+
   // This fixes anchors not redirecting when clicked (presumably because they are in shadow
   // DOMs, probably a bug?)
   document.addEventListener("click", async (event: MouseEvent) => {
