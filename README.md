@@ -22,7 +22,7 @@
 Pre-built binaries are available for macOS, Windows, and Linux from the [GitHub Releases page](https://github.com/ok-nick/c2pa-preview/releases).
 
 ### Installing from Source
-Install the prerequisites from [Tauri docs](https://tauri.app/v1/guides/getting-started/prerequisites#installing).
+Install the prerequisites from [Tauri docs](https://v2.tauri.app/start/prerequisites/) for your platform.
 
 Then, install frontend packages (recommended [npm](https://www.npmjs.com)):
 ```bash
@@ -31,7 +31,12 @@ $ npm install
 $ cd ..
 ```
 
-Next, build the app (ensure [tauri-cli](https://crates.io/crates/tauri-cli) is installed):
+Next, ensure [tauri-cli](https://crates.io/crates/tauri-cli) is installed and updated:
+```bash
+$ cargo install tauri-cli --version "2.0.0-beta.15" --locked --force
+```
+
+Finally, build the app:
 ```bash
 $ cargo tauri build
 ```
