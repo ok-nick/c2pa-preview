@@ -1,55 +1,24 @@
 {
+  "productName": "c2pa-preview",
+  "identifier": "com.c2pa-preview.dev",
   "build": {
     "beforeDevCommand": "npm run dev",
     "beforeBuildCommand": "npm run build",
-    "devPath": "http://localhost:1420",
-    "distDir": "frontend/dist",
-    "withGlobalTauri": true
+    "frontendDist": "frontend/dist",
+    "devUrl": "http://localhost:1420"
   },
-  "package": {
-    "productName": "c2pa-preview"
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": [
+      "assets/icons/32x32.png",
+      "assets/icons/128x128.png",
+      "assets/icons/128x128@2x.png",
+      "assets/icons/icon.icns",
+      "assets/icons/icon.ico"
+    ]
   },
-  "tauri": {
-    "allowlist": {
-      "fs": {
-        "readFile": true
-      },
-      "window": {
-        "setSize": true
-      },
-      "shell": {
-        "open": true
-      },
-      "dialog": {
-        "open": true
-      },
-      "os": {
-        "all": true
-      }
-    },
-    "windows": [
-      {
-        "title": "c2pa-preview",
-        "width": 304,
-        "height": 256,
-        "resizable": false
-      }
-    ],
-    "security": {
-      "csp": null
-    },
-    "bundle": {
-      "active": true,
-      "targets": "all",
-      "identifier": "com.c2pa-preview.dev",
-      "icon": [
-        "assets/icons/32x32.png",
-        "assets/icons/128x128.png",
-        "assets/icons/128x128@2x.png",
-        "assets/icons/icon.icns",
-        "assets/icons/icon.ico"
-      ]
-    },
+  "plugins": {
     "cli": {
       "description": "",
       "args": [
@@ -60,6 +29,20 @@
           "takesValue": true
         }
       ]
+    }
+  },
+  "app": {
+    "withGlobalTauri": true,
+    "windows": [
+      {
+        "title": "c2pa-preview",
+        "width": 304,
+        "height": 256,
+        "resizable": false
+      }
+    ],
+    "security": {
+      "capabilities": ["main"]
     }
   }
 }

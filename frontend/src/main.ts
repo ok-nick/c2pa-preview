@@ -1,10 +1,16 @@
-import { getMatches } from "@tauri-apps/api/cli";
-import { open as openURL } from "@tauri-apps/api/shell";
+import { getMatches } from "@tauri-apps/plugin-cli";
+import { open as openURL } from "@tauri-apps/plugin-shell";
 import mime from "mime/lite";
-import { readBinaryFile } from "@tauri-apps/api/fs";
-import { open } from "@tauri-apps/api/dialog";
+import { readFile } from "@tauri-apps/plugin-fs";
+import { open } from "@tauri-apps/plugin-dialog";
 import { emit, listen } from "@tauri-apps/api/event";
-import { appWindow, LogicalSize } from "@tauri-apps/api/window";
+import { type } from "@tauri-apps/plugin-os";
+import {
+  DragDropEvent,
+  DragDropPayload,
+  getCurrent,
+  LogicalSize,
+} from "@tauri-apps/api/window";
 import {
   createC2pa,
   createL2ManifestStore,
@@ -16,7 +22,6 @@ import "c2pa-wc";
 import wasmSrc from "c2pa/dist/assets/wasm/toolkit_bg.wasm?url";
 // @ts-ignore
 import workerSrc from "c2pa/dist/c2pa.worker.js?url";
-import { os } from "@tauri-apps/api";
 
 // Update Sequence Number
 let globalUSN = 0;
@@ -41,7 +46,7 @@ async function displayLoading() {
   homeContainer.style.display = "none";
   loaderContainer.style.display = "flex";
 
-  await appWindow.setSize(new LogicalSize(304, 242));
+  await getCurrent().setSize(new LogicalSize(304, 242));
 }
 
 async function displayHome() {
@@ -59,7 +64,7 @@ async function displayHome() {
   loaderContainer.style.display = "none";
   homeContainer.style.display = "block";
 
-  await appWindow.setSize(new LogicalSize(304, 242));
+  await getCurrent().setSize(new LogicalSize(304, 242));
 }
 
 async function displayError(error: string, usn: number) {
@@ -97,13 +102,12 @@ async function display(path: string, manifest: L2ManifestStore, usn: number) {
     manifestSummary.style.display = "block";
 
     const rect = manifestSummary.getBoundingClientRect();
-    console.log(rect);
     // https://github.com/tauri-apps/tauri/issues/6333
-    if ((await os.platform()) == "darwin") {
+    if ((await type()) == "macos") {
       rect.height += 28;
     }
 
-    await appWindow.setSize(new LogicalSize(304, rect.height));
+    await getCurrent().setSize(new LogicalSize(304, rect.height));
   });
 }
 
@@ -124,7 +128,7 @@ async function manifestFromPath(path: string) {
     return Promise.reject(new Error(`MIME type not found for "${path}"`));
   }
 
-  const data = await readBinaryFile(path);
+  const data = await readFile(path);
   const blob = new Blob([data], { type: mimeType });
 
   // TODO: cache this?
@@ -162,12 +166,12 @@ async function main() {
   home.addEventListener("click", async function () {
     const usn = incrementUSN();
 
-    let path;
+    let file;
     try {
-      path = await open({
+      file = await open({
         filters: [
           {
-            name: "Images",
+            name: "Image",
             extensions: [
               "jpeg",
               "jpg",
@@ -181,18 +185,19 @@ async function main() {
               "tiff",
             ],
           },
-          { name: "Videos", extensions: ["avi", "mp4"] },
+          { name: "Video", extensions: ["avi", "mp4"] },
           { name: "Audio", extensions: ["m4a", "mp3", "wav"] },
-          { name: "Documents", extensions: ["pdf"] },
+          { name: "Document", extensions: ["pdf"] },
         ],
       });
     } catch (err) {
       await displayError(`Failed to select file: ${err}`, usn);
     }
 
-    if (path) {
+    if (file) {
+      // TODO: file.mimeType, don't need mime crate
       // Error is handled inside of this function, nothing to catch
-      await displayWithPath(path as string, usn);
+      await displayWithPath(file.path, usn);
     }
   });
 
@@ -209,10 +214,12 @@ async function main() {
   });
 
   // TODO: display screen when file hover (not possible in tauri 1.0 iirc)
+  // TODO: disable dragDropEnabled in tauri.conf.json and use native stuff,
+  //       tauri v2 breaks the events above
+
   // Files drag and dropped
-  listen("tauri://file-drop", async (event) => {
-    const payload = event.payload as string[];
-    await displayWithPath(payload[0], incrementUSN());
+  listen<DragDropPayload>("tauri://drop", async (event) => {
+    await displayWithPath(event.payload.paths[0], incrementUSN());
   });
 
   // TODO: the "View More" sends to content credentials website, but it only accepts
