@@ -1,7 +1,7 @@
 import { open } from "@tauri-apps/plugin-dialog";
-import { InspectSourceType } from "./Inspect";
 import "./Upload.css";
 import { useState } from "react";
+import { InspectSourceType } from "./App";
 
 interface UploadProps {
   onError: (err: string) => void;

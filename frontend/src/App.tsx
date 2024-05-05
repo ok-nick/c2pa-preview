@@ -1,14 +1,20 @@
-import { C2paSourceType } from "c2pa";
+import { C2paSourceType, L2ManifestStore, createL2ManifestStore } from "c2pa";
 import "./App.css";
-import { Inspect, InspectSourceType } from "./Inspect";
+import Inspect from "./Inspect";
 import Loader from "./Loader";
 import Upload from "./Upload";
 import { emit, listen } from "@tauri-apps/api/event";
 import { getMatches } from "@tauri-apps/plugin-cli";
-import { message } from "@tauri-apps/plugin-dialog";
+import { FileResponse, message } from "@tauri-apps/plugin-dialog";
 import { useEffect, useRef, useState } from "react";
 import { readFile } from "@tauri-apps/plugin-fs";
 import mime from "mime/lite";
+import { useC2pa } from "@contentauth/react";
+import { getCurrent } from "@tauri-apps/api/webview";
+import { LogicalSize } from "@tauri-apps/api/dpi";
+
+// "string" being a path
+export type InspectSourceType = Blob | FileResponse | string;
 
 async function processSource(
   source: InspectSourceType,
@@ -33,13 +39,24 @@ export default function App() {
   const [inspectSource, setInspectSource] = useState<InspectSourceType | null>(
     null,
   );
+  const [processedSource, setProcessedSource] =
+    useState<C2paSourceType | null>();
+  const [manifestStore, setManifestStore] = useState<L2ManifestStore | null>(
+    null,
+  );
 
   const unlistenRef = useRef<(() => void) | null>(null);
+
+  // Must be outside, it internally calls a hook which must be at the top-level
+  const provenance = useC2pa(processedSource ?? undefined);
 
   function error(err: string) {
     // If an error occurs then it should go back to upload screen
     setLoading(false);
     setInspectSource(null);
+    setManifestStore(null);
+
+    getCurrent().setSize(new LogicalSize(304, 242));
 
     console.error(err);
     // If this fails, whataya gonna do
@@ -54,6 +71,33 @@ export default function App() {
     setInspectSource(source);
   }
 
+  // Convert source to C2PA-digestable format
+  useEffect(() => {
+    if (inspectSource) {
+      processSource(inspectSource).then(setProcessedSource).catch(error);
+    }
+  }, [inspectSource]);
+
+  // Convert processed source to manifest
+  useEffect(() => {
+    // If the source isn't processed, then ignore it, as there can't be any manifest
+    if (processedSource) {
+      if (provenance?.manifestStore?.activeManifest) {
+        createL2ManifestStore(provenance.manifestStore)
+          .then((result) => {
+            setManifestStore(result.manifestStore);
+            setLoading(false);
+            // Don't need the worker anymore
+            result.dispose();
+          })
+          .catch(error);
+      } else {
+        error(new Error("Manifest not found for file").toString());
+      }
+    }
+  }, [provenance]);
+
+  // Handle file drops
   useEffect(() => {
     function dragOver(event: DragEvent) {
       event.preventDefault();
@@ -77,6 +121,7 @@ export default function App() {
     };
   }, []);
 
+  // Handle CLI args and sources passed from backend (like for file extension)
   useEffect(() => {
     // File passed from CLI
     getMatches()
@@ -101,6 +146,7 @@ export default function App() {
     emit("ready").catch(error);
   }, []);
 
+  // Cleanup listener
   useEffect(() => {
     if (unlistenRef.current) {
       return unlistenRef.current;
@@ -113,12 +159,8 @@ export default function App() {
         <Upload onError={error} onInspect={handleInspect} />
       )}
 
-      {inspectSource && (
-        <Inspect
-          onError={error}
-          onLoad={() => setLoading(false)}
-          source={inspectSource}
-        />
+      {!loading && manifestStore && (
+        <Inspect onError={error} manifestStore={manifestStore} />
       )}
 
       {loading && <Loader />}
