@@ -5,7 +5,8 @@
     <a href="https://github.com/ok-nick/c2pa-preview/releases"><img src="https://img.shields.io/badge/-Windows-blue?style=flat-square&logo=windows&logoColor=white" alt="Windows" /></a>
     <a href="https://github.com/ok-nick/c2pa-preview/releases"><img src="https://img.shields.io/badge/-Linux-yellow?style=flat-square&logo=linux&logoColor=white" alt="Linux" /></a>
     <br>
-    <a href="https://github.com/ok-nick/c2pa-preview/actions/workflows/check.yml"><img src="https://github.com/ok-nick/c2pa-preview/actions/workflows/check.yml/badge.svg" alt="check" /></a>
+    <a href="https://github.com/ok-nick/c2pa-preview/actions/workflows/check-backend.yml"><img src="https://github.com/ok-nick/c2pa-preview/actions/workflows/check-backend.yml/badge.svg" alt="backend" /></a>
+    <a href="https://github.com/ok-nick/c2pa-preview/actions/workflows/check-frontend.yml"><img src="https://github.com/ok-nick/c2pa-preview/actions/workflows/check-frontend.yml/badge.svg" alt="frontend" /></a>
   </p>
 </div>
 

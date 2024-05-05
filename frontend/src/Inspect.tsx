@@ -5,7 +5,7 @@ import { open } from "@tauri-apps/plugin-shell";
 import { L2ManifestStore, generateVerifyUrl } from "c2pa";
 import { ManifestSummary } from "c2pa-wc";
 import "c2pa-wc/dist/components/ManifestSummary";
-import React, { useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 
 interface UploadProps {
   onError: (err: string) => void;

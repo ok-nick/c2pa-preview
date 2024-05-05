@@ -1,0 +1,46 @@
+name: frontend
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "**.tsx"
+      - "**.ts"
+      - "**/package-lock.json"
+      - "**/package.json"
+      - ".github/workflows/check-frontend.yml"
+  pull_request:
+    paths:
+      - "**.tsx"
+      - "**.ts"
+      - "**/package-lock.json"
+      - "**/package.json"
+      - ".github/workflows/check-frontend.yml"
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: install frontend dependencies
+        uses: bahmutov/npm-install@v1
+        with:
+          working-directory: ./frontend
+
+      - name: run eslint
+        run: npx eslint --max-warnings=0 "src/**/*.{ts,tsx}"
+        working-directory: frontend
+  
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: install frontend dependencies
+        uses: bahmutov/npm-install@v1
+        with:
+          working-directory: ./frontend
+
+      - name: run prettier
+        run: npx prettier --parser typescript "src/**/*.{ts,tsx}" --check
+        working-directory: frontend

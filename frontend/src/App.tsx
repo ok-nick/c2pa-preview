@@ -11,7 +11,7 @@ import { FileResponse, message } from "@tauri-apps/plugin-dialog";
 import { readFile } from "@tauri-apps/plugin-fs";
 import { C2paSourceType, L2ManifestStore, createL2ManifestStore } from "c2pa";
 import mime from "mime/lite";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 // "string" being a path
 export type InspectSourceType = Blob | FileResponse | string;
