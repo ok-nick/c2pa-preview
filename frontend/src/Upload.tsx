@@ -51,7 +51,7 @@ export default function Upload({ onError, onInspect }: UploadProps) {
         onDragEnter={() => setDragging(true)}
         onDragLeave={() => setDragging(false)}
       >
-        <img className="upload-icon" src="/assets/upload.png" />
+        <img className="upload-icon" src="/upload.png" />
 
         <div className="upload-instructions">
           Drag & Drop or <span className="hyperlink-style">Choose file</span> to

@@ -13,6 +13,7 @@
     "window:allow-inner-position",
     "os:allow-os-type",
     "shell:allow-open",
-    "dialog:allow-message"
+    "dialog:allow-message",
+    "event:allow-unlisten"
   ]
 }

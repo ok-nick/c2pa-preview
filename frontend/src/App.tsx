@@ -10,8 +10,8 @@ import { useEffect, useRef, useState } from "react";
 import { readFile } from "@tauri-apps/plugin-fs";
 import mime from "mime/lite";
 import { useC2pa } from "@contentauth/react";
-import { getCurrent } from "@tauri-apps/api/webview";
 import { LogicalSize } from "@tauri-apps/api/dpi";
+import { getCurrent } from "@tauri-apps/api/window";
 
 // "string" being a path
 export type InspectSourceType = Blob | FileResponse | string;
@@ -50,20 +50,25 @@ export default function App() {
   // Must be outside, it internally calls a hook which must be at the top-level
   const provenance = useC2pa(processedSource ?? undefined);
 
-  function error(err: string) {
-    // If an error occurs then it should go back to upload screen
-    setLoading(false);
-    setInspectSource(null);
-    setManifestStore(null);
-
-    getCurrent().setSize(new LogicalSize(304, 242));
-
+  function logError(err: string) {
     console.error(err);
     // If this fails, whataya gonna do
     // TODO: save to log file?
     message(err, {
       kind: "error",
     });
+  }
+
+  function error(err: string) {
+    // If an error occurs then it should go back to upload screen
+    setLoading(false);
+    setInspectSource(null);
+    setProcessedSource(null);
+    setManifestStore(null);
+
+    getCurrent().setSize(new LogicalSize(304, 242)).catch(logError);
+
+    logError(err);
   }
 
   function handleInspect(source: InspectSourceType) {
