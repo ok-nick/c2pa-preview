@@ -1,7 +1,7 @@
-import { open } from "@tauri-apps/plugin-dialog";
-import "./Upload.css";
-import { useState } from "react";
 import { InspectSourceType } from "./App";
+import "./Upload.css";
+import { open } from "@tauri-apps/plugin-dialog";
+import React, { useState } from "react";
 
 interface UploadProps {
   onError: (err: string) => void;
@@ -11,8 +11,8 @@ interface UploadProps {
 export default function Upload({ onError, onInspect }: UploadProps) {
   const [dragging, setDragging] = useState(false);
 
-  async function selectFile() {
-    return open({
+  function selectFile() {
+    open({
       filters: [
         {
           name: "Image",

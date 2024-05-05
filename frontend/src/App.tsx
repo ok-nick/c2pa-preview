@@ -1,17 +1,17 @@
-import { C2paSourceType, L2ManifestStore, createL2ManifestStore } from "c2pa";
 import "./App.css";
 import Inspect from "./Inspect";
 import Loader from "./Loader";
 import Upload from "./Upload";
-import { emit, listen } from "@tauri-apps/api/event";
-import { getMatches } from "@tauri-apps/plugin-cli";
-import { FileResponse, message } from "@tauri-apps/plugin-dialog";
-import { useEffect, useRef, useState } from "react";
-import { readFile } from "@tauri-apps/plugin-fs";
-import mime from "mime/lite";
 import { useC2pa } from "@contentauth/react";
 import { LogicalSize } from "@tauri-apps/api/dpi";
+import { emit, listen } from "@tauri-apps/api/event";
 import { getCurrent } from "@tauri-apps/api/window";
+import { getMatches } from "@tauri-apps/plugin-cli";
+import { FileResponse, message } from "@tauri-apps/plugin-dialog";
+import { readFile } from "@tauri-apps/plugin-fs";
+import { C2paSourceType, L2ManifestStore, createL2ManifestStore } from "c2pa";
+import mime from "mime/lite";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 
 // "string" being a path
 export type InspectSourceType = Blob | FileResponse | string;
@@ -50,44 +50,44 @@ export default function App() {
   // Must be outside, it internally calls a hook which must be at the top-level
   const provenance = useC2pa(processedSource ?? undefined);
 
-  function logError(err: string) {
-    console.error(err);
-    // If this fails, whataya gonna do
-    // TODO: save to log file?
-    message(err, {
-      kind: "error",
-    });
-  }
-
-  function error(err: string) {
+  const error = useCallback((err: string) => {
     // If an error occurs then it should go back to upload screen
     setLoading(false);
     setInspectSource(null);
     setProcessedSource(null);
     setManifestStore(null);
 
+    function logError(err: string) {
+      console.error(err);
+      // If this fails, whataya gonna do
+      void message(err, {
+        kind: "error",
+      });
+    }
+
     getCurrent().setSize(new LogicalSize(304, 242)).catch(logError);
 
     logError(err);
-  }
+  }, []);
 
-  function handleInspect(source: InspectSourceType) {
+  const handleInspect = useCallback((source: InspectSourceType) => {
     setLoading(true);
+    setProcessedSource(null);
+    setManifestStore(null);
     setInspectSource(source);
-  }
+  }, []);
 
   // Convert source to C2PA-digestable format
   useEffect(() => {
     if (inspectSource) {
       processSource(inspectSource).then(setProcessedSource).catch(error);
     }
-  }, [inspectSource]);
+  }, [error, inspectSource]);
 
   // Convert processed source to manifest
   useEffect(() => {
-    // If the source isn't processed, then ignore it, as there can't be any manifest
-    if (processedSource) {
-      if (provenance?.manifestStore?.activeManifest) {
+    if (provenance) {
+      if (provenance.manifestStore?.activeManifest) {
         createL2ManifestStore(provenance.manifestStore)
           .then((result) => {
             setManifestStore(result.manifestStore);
@@ -100,7 +100,7 @@ export default function App() {
         error(new Error("Manifest not found for file").toString());
       }
     }
-  }, [provenance]);
+  }, [error, provenance]);
 
   // Handle file drops
   useEffect(() => {
@@ -124,13 +124,13 @@ export default function App() {
       window.removeEventListener("dragover", dragOver);
       window.removeEventListener("drop", drop);
     };
-  }, []);
+  }, [handleInspect]);
 
   // Handle CLI args and sources passed from backend (like for file extension)
   useEffect(() => {
     // File passed from CLI
     getMatches()
-      .then(async (matches) => {
+      .then((matches) => {
         const path = matches.args.path?.value;
         if (typeof path === "string") {
           handleInspect(path);
@@ -149,18 +149,18 @@ export default function App() {
 
     // Tell the backend that the frontend is ready for inspect requests
     emit("ready").catch(error);
-  }, []);
+  }, [error, handleInspect]);
 
   // Cleanup listener
   useEffect(() => {
     if (unlistenRef.current) {
       return unlistenRef.current;
     }
-  }, [unlistenRef.current]);
+  }, []);
 
   return (
     <div>
-      {!loading && !inspectSource && (
+      {!loading && !manifestStore && (
         <Upload onError={error} onInspect={handleInspect} />
       )}
 

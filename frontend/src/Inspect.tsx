@@ -1,11 +1,11 @@
-import "c2pa-wc/dist/components/ManifestSummary";
+import "./Inspect.css";
+import { LogicalSize, getCurrent } from "@tauri-apps/api/window";
+import { type } from "@tauri-apps/plugin-os";
 import { open } from "@tauri-apps/plugin-shell";
 import { L2ManifestStore, generateVerifyUrl } from "c2pa";
 import { ManifestSummary } from "c2pa-wc";
-import { useEffect, useRef } from "react";
-import { LogicalSize, getCurrent } from "@tauri-apps/api/window";
-import { type } from "@tauri-apps/plugin-os";
-import "./Inspect.css";
+import "c2pa-wc/dist/components/ManifestSummary";
+import React, { useEffect, useRef } from "react";
 
 interface UploadProps {
   onError: (err: string) => void;
@@ -25,7 +25,7 @@ export default function Inspect({ onError, manifestStore }: UploadProps) {
       //       currently there is no way to do this for local files
       summaryElement.viewMoreUrl = generateVerifyUrl("");
     }
-  }, [summaryRef.current, manifestStore]);
+  }, [manifestStore]);
 
   // Resize window
   useEffect(() => {
@@ -56,7 +56,7 @@ export default function Inspect({ onError, manifestStore }: UploadProps) {
 
       return () => resizeObserver.disconnect();
     }
-  }, [summaryRef.current, manifestStore, onError]);
+  }, [manifestStore, onError]);
 
   // Fixes anchors not redirecting when clicked (presumably because they are in shadow
   // DOMs, probably a Tauri bug?)
@@ -70,11 +70,15 @@ export default function Inspect({ onError, manifestStore }: UploadProps) {
         open(anchor.href).catch(onError);
       }
     }
-    summaryRef.current?.addEventListener("click", click);
 
-    return () => {
-      summaryRef.current?.removeEventListener("click", click);
-    };
+    const ref = summaryRef.current;
+    if (ref) {
+      ref.addEventListener("click", click);
+
+      return () => {
+        ref.removeEventListener("click", click);
+      };
+    }
   });
 
   return (
