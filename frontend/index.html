@@ -1,47 +1,15 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
   <meta charset="UTF-8" />
-  <link rel="stylesheet" href="/src/styles.css" />
-  <title>Tauri App</title>
-  <script type="module" src="/src/main.ts" defer></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tauri + React + TS</title>
 </head>
 
 <body>
-  <div id="error-screen" style="display: none;">
-    <div class="error-message"></div>
-  </div>
-
-  <div class="loader-container" style="display: none;">
-    <div class="loader">
-      <div class="sk-cube sk-cube1"></div>
-      <div class="sk-cube sk-cube2"></div>
-      <div class="sk-cube sk-cube3"></div>
-      <div class="sk-cube sk-cube4"></div>
-      <div class="sk-cube sk-cube5"></div>
-      <div class="sk-cube sk-cube6"></div>
-      <div class="sk-cube sk-cube7"></div>
-      <div class="sk-cube sk-cube8"></div>
-      <div class="sk-cube sk-cube9"></div>
-    </div>
-  </div>
-
-  <cai-manifest-summary style="display: none;" slot="content" class="cai-manifest-theme"></cai-manifest-summary>
-
-  <div class="home-container">
-    <div class="home">
-      <img class="upload-icon" src="/assets/upload.png">
-
-      <div class="upload-instructions">
-        Drag & Drop or <span class="hyperlink-style">Choose file</span> to upload
-      </div>
-
-      <div class="supported-formats">
-        Supported formats: AVI, AVIF, DNG, HEIC, HEIF, JPEG, M4A, MP3, MP4, PDF, PNG, SVG, TIFF, WAV, WebP
-      </div>
-    </div>
-  </div>
+  <div id="root"></div>
+  <script type="module" src="src/main.tsx"></script>
 </body>
 
 </html>

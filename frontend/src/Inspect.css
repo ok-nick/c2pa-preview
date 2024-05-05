@@ -1,0 +1,19 @@
+.cai-manifest-theme {
+  --cai-font-family: adobe-clean, 'Adobe Clean', Arial, Helvetica, sans-serif;
+  --cai-manifest-summary-width: 304px;
+
+  &::part(manifest-summary-view-more) {
+    border: none;
+    background-color: #1473e6;
+    color: #fff;
+  }
+
+  &::part(manifest-summary-view-more):hover {
+    background-color: #0d66d0;
+  }
+
+  &::part(manifest-summary-view-more):hover:active {
+    background-color: #095aba;
+  }
+
+}
