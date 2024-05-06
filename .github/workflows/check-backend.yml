@@ -1,16 +1,18 @@
-name: check
+name: backend
 on:
   workflow_dispatch:
   push:
     paths:
       - "**.rs"
+      - "**/Cargo.lock"
       - "**/Cargo.toml"
-      - ".github/workflows/check.yml"
+      - ".github/workflows/check-backend.yml"
   pull_request:
     paths:
       - "**.rs"
+      - "**/Cargo.lock"
       - "**/Cargo.toml"
-      - ".github/workflows/check.yml"
+      - ".github/workflows/check-backend.yml"
 
 jobs:
   lint:
