@@ -7,11 +7,11 @@ import { LogicalSize } from "@tauri-apps/api/dpi";
 import { emit, listen } from "@tauri-apps/api/event";
 import { getCurrent } from "@tauri-apps/api/window";
 import { getMatches } from "@tauri-apps/plugin-cli";
-import { FileResponse, message } from "@tauri-apps/plugin-dialog";
+import { FileResponse } from "@tauri-apps/plugin-dialog";
 import { readFile } from "@tauri-apps/plugin-fs";
 import { C2paSourceType, L2ManifestStore, createL2ManifestStore } from "c2pa";
 import mime from "mime/lite";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 // "string" being a path
 export type InspectSourceType = Blob | FileResponse | string;
@@ -45,8 +45,6 @@ export default function App() {
     null,
   );
 
-  const unlistenRef = useRef<(() => void) | null>(null);
-
   // Must be outside, it internally calls a hook which must be at the top-level
   const provenance = useC2pa(processedSource ?? undefined);
 
@@ -57,17 +55,9 @@ export default function App() {
     setProcessedSource(null);
     setManifestStore(null);
 
-    function logError(err: string) {
-      console.error(err);
-      // If this fails, whataya gonna do
-      void message(err, {
-        kind: "error",
-      });
-    }
+    getCurrent().setSize(new LogicalSize(304, 242)).catch(reportError);
 
-    getCurrent().setSize(new LogicalSize(304, 242)).catch(logError);
-
-    logError(err);
+    reportError(err);
   }, []);
 
   const handleInspect = useCallback((source: InspectSourceType) => {
@@ -128,6 +118,9 @@ export default function App() {
 
   // Handle CLI args and sources passed from backend (like for file extension)
   useEffect(() => {
+    let isMounted = true;
+    let unlisten = () => {};
+
     // File passed from CLI
     getMatches()
       .then((matches) => {
@@ -142,21 +135,23 @@ export default function App() {
     listen("inspect", (event) => {
       handleInspect(event.payload as string);
     })
-      .then((dispose) => {
-        unlistenRef.current = dispose;
+      .then((unlistenFn) => {
+        if (isMounted) {
+          unlisten = unlistenFn;
+        } else {
+          unlistenFn();
+        }
       })
       .catch(error);
 
     // Tell the backend that the frontend is ready for inspect requests
     emit("ready").catch(error);
-  }, [error, handleInspect]);
 
-  // Cleanup listener
-  useEffect(() => {
-    if (unlistenRef.current) {
-      return unlistenRef.current;
-    }
-  }, []);
+    return () => {
+      isMounted = false;
+      unlisten();
+    };
+  }, [error, handleInspect]);
 
   return (
     <div>
@@ -164,8 +159,12 @@ export default function App() {
         <Upload onError={error} onInspect={handleInspect} />
       )}
 
-      {!loading && manifestStore && (
-        <Inspect onError={error} manifestStore={manifestStore} />
+      {!loading && manifestStore && processedSource && (
+        <Inspect
+          onError={error}
+          manifestStore={manifestStore}
+          source={processedSource}
+        />
       )}
 
       {loading && <Loader />}

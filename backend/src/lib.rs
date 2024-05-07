@@ -9,6 +9,7 @@ use tauri::{AppHandle, Manager};
 use tauri_plugin_cli::CliExt;
 use tauri_plugin_fs::FsExt;
 
+mod editor;
 mod file_ext;
 
 #[derive(Debug)]
@@ -108,6 +109,7 @@ pub fn run() {
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_os::init())
         .plugin(tauri_plugin_shell::init())
+        .invoke_handler(tauri::generate_handler![editor::c2pa_report])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

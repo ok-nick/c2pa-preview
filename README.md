@@ -40,6 +40,9 @@ Finally, build the app:
 $ cargo tauri build
 ```
 
+> [!IMPORTANT]
+> Linux users may need to set `NO_STRIP=true` before executing the last step as described [here](https://github.com/tauri-apps/tauri/issues/8929).
+
 ## Example Images
 Download the example images below and try it for yourself! For more example images, be sure to check out [this page](https://c2pa.org/public-testfiles/image/).
 

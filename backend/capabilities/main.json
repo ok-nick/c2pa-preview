@@ -1,7 +1,7 @@
 {
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "main",
-  "windows": ["main"],
+  "windows": ["main", "editor-*"],
   "permissions": [
     "cli:allow-cli-matches",
     "fs:allow-read-file",
@@ -14,6 +14,10 @@
     "os:allow-os-type",
     "shell:allow-open",
     "dialog:allow-message",
-    "event:allow-unlisten"
+    "event:allow-unlisten",
+    "menu:allow-new",
+    "menu:allow-popup",
+    "webview:allow-create-webview-window",
+    "event:allow-emit-to"
   ]
 }
