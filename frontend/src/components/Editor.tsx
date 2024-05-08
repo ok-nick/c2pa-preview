@@ -16,10 +16,13 @@ export default function Editor() {
   useEffect(() => {
     // TODO: listen to window theme and change JsonView corrsponding theme
 
+    let isMounted = true;
+    let unlisten: (() => void) | null = null;
+
     const webview = WebviewWindow.getCurrent();
     if (webview) {
       webview
-        .once("edit-info", (event) => {
+        .listen("edit-info", (event) => {
           const payload = event.payload as EditorPayload;
           if (payload.readonly) {
             // TODO: set window size based on size of json?
@@ -28,10 +31,24 @@ export default function Editor() {
             // TODO: implement manifest editing
           }
         })
+        .then((unlistenFn) => {
+          if (isMounted) {
+            unlisten = unlistenFn;
+          } else {
+            unlistenFn();
+          }
+        })
         .catch(logError);
 
       webview.emit("request-edit-info").catch(logError);
     }
+
+    return () => {
+      isMounted = false;
+      if (unlisten) {
+        unlisten();
+      }
+    };
   }, []);
 
   return (
