@@ -119,7 +119,7 @@ export default function App() {
   // Handle CLI args and sources passed from backend (like for file extension)
   useEffect(() => {
     let isMounted = true;
-    let unlisten = () => {};
+    let unlisten: (() => void) | null = null;
 
     // File passed from CLI
     getMatches()
@@ -149,7 +149,9 @@ export default function App() {
 
     return () => {
       isMounted = false;
-      unlisten();
+      if (unlisten) {
+        unlisten();
+      }
     };
   }, [error, handleInspect]);
 

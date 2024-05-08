@@ -59,7 +59,7 @@ export default function Inspect({
                 const decoder = new TextDecoder("utf-8");
                 const manifest = JSON.parse(
                   decoder.decode(bytes as ArrayBuffer),
-                );
+                ) as object;
 
                 webview
                   .emit("edit-info", {
@@ -73,9 +73,8 @@ export default function Inspect({
           .catch(onError);
         webview
           .once("tauri://error", (err) => {
-            // Tauri source code says the payload will be a string, but we
-            // cast to any just because there's no guarantee
-            onError(err.payload as any);
+            // Tauri source code says the payload will be a string
+            onError(err.payload as string);
           })
           .catch(onError);
       },

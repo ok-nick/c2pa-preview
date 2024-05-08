@@ -13,7 +13,6 @@ export default function Editor() {
   const [manifest, setManifest] = useState<object | null>(null);
 
   useEffect(() => {
-    console.log(manifest);
     // TODO: listen to window theme and change JsonView corrsponding theme
 
     const webview = WebviewWindow.getCurrent();
