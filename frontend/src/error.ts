@@ -1,9 +1,11 @@
 import { message } from "@tauri-apps/plugin-dialog";
 
-export function reportError(err: string) {
+export function logError(err: string) {
   console.error(err);
   // If this fails, whataya gonna do
-  void message(err, {
+  message(err, {
     kind: "error",
+  }).catch((err) => {
+    console.error(err);
   });
 }

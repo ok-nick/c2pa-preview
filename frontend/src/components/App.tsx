@@ -1,3 +1,4 @@
+import { logError } from "../error";
 import "./App.css";
 import Inspect from "./Inspect";
 import Loader from "./Loader";
@@ -55,9 +56,9 @@ export default function App() {
     setProcessedSource(null);
     setManifestStore(null);
 
-    getCurrent().setSize(new LogicalSize(304, 242)).catch(reportError);
+    getCurrent().setSize(new LogicalSize(304, 242)).catch(logError);
 
-    reportError(err);
+    logError(err);
   }, []);
 
   const handleInspect = useCallback((source: InspectSourceType) => {

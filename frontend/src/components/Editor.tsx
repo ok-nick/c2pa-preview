@@ -1,3 +1,4 @@
+import { logError } from "../error";
 import "./Editor.css";
 import Loader from "./Loader";
 import { WebviewWindow } from "@tauri-apps/api/webviewWindow";
@@ -27,9 +28,9 @@ export default function Editor() {
             // TODO: implement manifest editing
           }
         })
-        .catch(reportError);
+        .catch(logError);
 
-      webview.emit("request-edit-info").catch(reportError);
+      webview.emit("request-edit-info").catch(logError);
     }
   }, []);
 
