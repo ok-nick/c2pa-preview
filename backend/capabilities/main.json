@@ -18,6 +18,7 @@
     "menu:allow-new",
     "menu:allow-popup",
     "webview:allow-create-webview-window",
-    "event:allow-emit-to"
+    "event:allow-emit-to",
+    "window:allow-theme"
   ]
 }
