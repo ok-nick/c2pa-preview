@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2024-05-08
+
 ### Added
 
 - Add right-click action to preview page for viewing JSON manifest in a separate window [#3](https://github.com/ok-nick/c2pa-preview/issues/3).
@@ -32,5 +34,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Everything
 
-[unreleased]: https://github.com/ok-nick/c2pa-preview/compare/v0.1.0...HEAD
+[unreleased]: https://github.com/ok-nick/c2pa-preview/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/ok-nick/c2pa-preview/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/ok-nick/c2pa-preview/commits/v0.1.0
