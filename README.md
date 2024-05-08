@@ -13,8 +13,10 @@
 `c2pa-preview` is a desktop application to display [content credentials](https://contentcredentials.org) for the [C2PA standard](https://c2pa.org) embedded within images, videos, and other types of files. 
 
 <div align="center">
-  <img src="./assets/screenshots/preview.png" width="45%">
   <img src="./assets/screenshots/home.png" width="45%">
+  <img src="./assets/screenshots/preview.png" width="45%">
+  <img src="./assets/screenshots/preview-menu.png" width="45%">
+  <img src="./assets/screenshots/editor.png" width="45%">
   <img src="./assets/screenshots/finder.png">
 </div>
 
@@ -40,6 +42,9 @@ Finally, build the app:
 $ cargo tauri build
 ```
 
+> [!IMPORTANT]
+> Linux users may need to set `NO_STRIP=true` before executing the last step as described [here](https://github.com/tauri-apps/tauri/issues/8929).
+
 ## Example Images
 Download the example images below and try it for yourself! For more example images, be sure to check out [this page](https://c2pa.org/public-testfiles/image/).
 
@@ -47,5 +52,6 @@ Download the example images below and try it for yourself! For more example imag
     <img src="./assets/examples/example1.jpg" style="max-height: 230px;">
     <img src="./assets/examples/example3.jpg" style="max-height: 230px;">
     <img src="./assets/examples/example2.jpg" style="max-height: 230px;">
+    <img src="./assets/examples/example4.jpg" style="max-height: 230px;">
     <img src="./assets/examples/example4.jpg" style="max-height: 230px;">
 </div>

@@ -1,20 +1,94 @@
+import { EditorPayload } from "./Editor";
 import "./Inspect.css";
+import { invoke } from "@tauri-apps/api/core";
+import { Menu, MenuItem } from "@tauri-apps/api/menu";
+import { WebviewWindow } from "@tauri-apps/api/webviewWindow";
 import { LogicalSize, getCurrent } from "@tauri-apps/api/window";
 import { type } from "@tauri-apps/plugin-os";
 import { open } from "@tauri-apps/plugin-shell";
-import { L2ManifestStore, generateVerifyUrl } from "c2pa";
+import { C2paSourceType, L2ManifestStore, generateVerifyUrl } from "c2pa";
 import { ManifestSummary } from "c2pa-wc";
 import "c2pa-wc/dist/components/ManifestSummary";
 import { useEffect, useRef } from "react";
+import { v4 as uuid } from "uuid";
 
 interface UploadProps {
   onError: (err: string) => void;
   manifestStore: L2ManifestStore;
+  source: C2paSourceType;
 }
 
-export default function Inspect({ onError, manifestStore }: UploadProps) {
+function sourceToBytes(source: C2paSourceType): Promise<Uint8Array> | null {
+  if (source instanceof Blob) {
+    return source.arrayBuffer().then((buffer) => new Uint8Array(buffer));
+  } else if (source instanceof HTMLImageElement) {
+    // HTMLImageElement's also aren't used, so ignore for now
+    return null;
+  } else {
+    // URL's aren't used since we pull the file blob directly, so ignore this
+    return null;
+  }
+}
+
+export default function Inspect({
+  onError,
+  manifestStore,
+  source,
+}: UploadProps) {
   const summaryRef = useRef<ManifestSummary | null>(null);
   const heightRef = useRef<number | null>();
+
+  function showContextMenu(event: React.MouseEvent) {
+    event.preventDefault();
+
+    MenuItem.new({
+      text: "View JSON Manifest",
+      action: () => {
+        const webview = new WebviewWindow(`editor-${uuid()}`, {
+          url: "#/editor",
+          title: "c2pa-preview editor",
+          parent: "main",
+        });
+
+        // TODO: are these events auto unlistened when the window is dropped?
+        webview
+          .listen("request-edit-info", () => {
+            sourceToBytes(source)
+              ?.then((bytes) => invoke("c2pa_report", bytes))
+              .then((bytes) => {
+                const decoder = new TextDecoder("utf-8");
+                const manifest = JSON.parse(
+                  decoder.decode(bytes as ArrayBuffer),
+                ) as object;
+
+                webview
+                  .emit("edit-info", {
+                    readonly: true,
+                    manifest,
+                  } as EditorPayload)
+                  .catch(onError);
+              })
+              .catch(onError);
+          })
+          .catch(onError);
+        webview
+          .once("tauri://error", (err) => {
+            // Tauri source code says the payload will be a string
+            onError(err.payload as string);
+          })
+          .catch(onError);
+      },
+    })
+      .then((items) => {
+        return Menu.new({
+          items: [items],
+        });
+      })
+      .then((menu) => {
+        return menu.popup();
+      })
+      .catch(onError);
+  }
 
   // Set manifest in component
   useEffect(() => {
@@ -88,6 +162,7 @@ export default function Inspect({ onError, manifestStore }: UploadProps) {
           ref={summaryRef}
           slot="content"
           class="cai-manifest-theme"
+          onContextMenu={showContextMenu}
         ></cai-manifest-summary>
       )}
     </>
