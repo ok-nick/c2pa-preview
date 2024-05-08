@@ -1,11 +1,11 @@
-import { InspectSourceType } from "./App";
+import { InspectSource } from "./App";
 import "./Upload.css";
 import { open } from "@tauri-apps/plugin-dialog";
 import { useState } from "react";
 
 interface UploadProps {
   onError: (err: string) => void;
-  onInspect: (file: InspectSourceType) => void;
+  onInspect: (file: InspectSource) => void;
 }
 
 export default function Upload({ onError, onInspect }: UploadProps) {
@@ -36,7 +36,7 @@ export default function Upload({ onError, onInspect }: UploadProps) {
     })
       .then((file) => {
         if (file) {
-          return onInspect(file);
+          return onInspect({ origin: file });
         }
       })
       .catch(onError);

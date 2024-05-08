@@ -10,44 +10,62 @@ import { getCurrent } from "@tauri-apps/api/window";
 import { getMatches } from "@tauri-apps/plugin-cli";
 import { FileResponse } from "@tauri-apps/plugin-dialog";
 import { readFile } from "@tauri-apps/plugin-fs";
-import { C2paSourceType, L2ManifestStore, createL2ManifestStore } from "c2pa";
+import { L2ManifestStore, createL2ManifestStore } from "c2pa";
 import mime from "mime/lite";
 import { useCallback, useEffect, useState } from "react";
 
-// "string" being a path
-export type InspectSourceType = Blob | FileResponse | string;
+export interface InspectSource {
+  // "string" being a path
+  origin: Blob | FileResponse | string;
+  url?: string;
+}
 
-async function processSource(
-  source: InspectSourceType,
-): Promise<C2paSourceType> {
-  if (source instanceof Blob) {
-    return Promise.resolve(source);
-  } else if (typeof source === "string") {
-    const data = await readFile(source);
-    const mimeType = mime.getType(source);
-    if (mimeType) {
-      return Promise.resolve(new Blob([data], { type: mimeType }));
-    } else {
-      return Promise.reject(new Error(`MIME type not found for "${source}"`));
-    }
+export interface ProcessedSource {
+  origin: Blob;
+  url?: string;
+}
+
+function processSource(source: InspectSource): Promise<ProcessedSource> {
+  const origin = source.origin;
+  if (origin instanceof Blob) {
+    // TODO: origin.mimeType is incorrect for drag&drop files, need to determine mime type based on
+    //       file signature. Unfortunately, the file-type crate only supports nodejs. When the mime
+    //       type is incorrect, a spontaneous promise error occurs in c2pa and breaks everything.
+    //       Either impl magic number checker in js or send to backend and call the infer crate.
+    return Promise.resolve({
+      origin,
+      url: source.url,
+    });
+  } else if (typeof origin === "string") {
+    return readFile(origin).then((data) => {
+      const mimeType = mime.getType(origin);
+      if (mimeType) {
+        return Promise.resolve({
+          origin: new Blob([data], { type: mimeType }),
+          url: source.url,
+        });
+      } else {
+        return Promise.reject(new Error(`MIME type not found for "${origin}"`));
+      }
+    });
   } else {
-    return processSource(source.path);
+    return processSource({ origin: origin.path });
   }
 }
 
 export default function App() {
   const [loading, setLoading] = useState(false);
-  const [inspectSource, setInspectSource] = useState<InspectSourceType | null>(
+  const [inspectSource, setInspectSource] = useState<InspectSource | null>(
     null,
   );
   const [processedSource, setProcessedSource] =
-    useState<C2paSourceType | null>();
+    useState<ProcessedSource | null>();
   const [manifestStore, setManifestStore] = useState<L2ManifestStore | null>(
     null,
   );
 
   // Must be outside, it internally calls a hook which must be at the top-level
-  const provenance = useC2pa(processedSource ?? undefined);
+  const provenance = useC2pa(processedSource?.origin);
 
   const error = useCallback((err: string) => {
     // If an error occurs then it should go back to upload screen
@@ -61,7 +79,7 @@ export default function App() {
     logError(err);
   }, []);
 
-  const handleInspect = useCallback((source: InspectSourceType) => {
+  const handleInspect = useCallback((source: InspectSource) => {
     setLoading(true);
     setProcessedSource(null);
     setManifestStore(null);
@@ -104,7 +122,10 @@ export default function App() {
 
       const files = event.dataTransfer?.files;
       if (files?.length && files.length >= 1) {
-        handleInspect(files[0]);
+        handleInspect({
+          origin: files[0],
+          url: event.dataTransfer?.getData("text/uri-list"),
+        });
       }
     }
 
@@ -127,14 +148,14 @@ export default function App() {
       .then((matches) => {
         const path = matches.args.path?.value;
         if (typeof path === "string") {
-          handleInspect(path);
+          handleInspect({ origin: path });
         }
       })
       .catch(error);
 
     // File passed from file extension
     listen("inspect", (event) => {
-      handleInspect(event.payload as string);
+      handleInspect({ origin: event.payload as string });
     })
       .then((unlistenFn) => {
         if (isMounted) {

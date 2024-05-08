@@ -1,3 +1,4 @@
+import { ProcessedSource } from "./App";
 import { EditorPayload } from "./Editor";
 import "./Inspect.css";
 import { invoke } from "@tauri-apps/api/core";
@@ -6,35 +7,23 @@ import { WebviewWindow } from "@tauri-apps/api/webviewWindow";
 import { LogicalSize, getCurrent } from "@tauri-apps/api/window";
 import { type } from "@tauri-apps/plugin-os";
 import { open } from "@tauri-apps/plugin-shell";
-import { C2paSourceType, L2ManifestStore, generateVerifyUrl } from "c2pa";
+import { L2ManifestStore, generateVerifyUrl } from "c2pa";
 import { ManifestSummary } from "c2pa-wc";
 import "c2pa-wc/dist/components/ManifestSummary";
 import { useEffect, useRef } from "react";
 import { v4 as uuid } from "uuid";
 
-interface UploadProps {
+interface InspectProps {
   onError: (err: string) => void;
   manifestStore: L2ManifestStore;
-  source: C2paSourceType;
-}
-
-function sourceToBytes(source: C2paSourceType): Promise<Uint8Array> | null {
-  if (source instanceof Blob) {
-    return source.arrayBuffer().then((buffer) => new Uint8Array(buffer));
-  } else if (source instanceof HTMLImageElement) {
-    // HTMLImageElement's also aren't used, so ignore for now
-    return null;
-  } else {
-    // URL's aren't used since we pull the file blob directly, so ignore this
-    return null;
-  }
+  source: ProcessedSource;
 }
 
 export default function Inspect({
   onError,
   manifestStore,
   source,
-}: UploadProps) {
+}: InspectProps) {
   const summaryRef = useRef<ManifestSummary | null>(null);
   const heightRef = useRef<number | null>();
 
@@ -53,7 +42,9 @@ export default function Inspect({
         // TODO: are these events auto unlistened when the window is dropped?
         webview
           .listen("request-edit-info", () => {
-            sourceToBytes(source)
+            source.origin
+              .arrayBuffer()
+              .then((buffer) => new Uint8Array(buffer))
               ?.then((bytes) => invoke("c2pa_report", bytes))
               .then((bytes) => {
                 const decoder = new TextDecoder("utf-8");
@@ -61,12 +52,11 @@ export default function Inspect({
                   decoder.decode(bytes as ArrayBuffer),
                 ) as object;
 
-                webview
-                  .emit("edit-info", {
-                    readonly: true,
-                    manifest,
-                  } as EditorPayload)
-                  .catch(onError);
+                const payload: EditorPayload = {
+                  readonly: true,
+                  manifest,
+                };
+                return webview.emit("edit-info", payload);
               })
               .catch(onError);
           })
@@ -95,11 +85,9 @@ export default function Inspect({
     const summaryElement = summaryRef?.current;
     if (summaryElement) {
       summaryElement.manifestStore = manifestStore ?? undefined;
-      // TODO: set to URL if manifest is derived from online source
-      //       currently there is no way to do this for local files
-      summaryElement.viewMoreUrl = generateVerifyUrl("");
+      summaryElement.viewMoreUrl = generateVerifyUrl(source.url ?? "");
     }
-  }, [manifestStore]);
+  }, [manifestStore, source]);
 
   // Resize window
   useEffect(() => {
