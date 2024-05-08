@@ -53,5 +53,4 @@ Download the example images below and try it for yourself! For more example imag
     <img src="./assets/examples/example3.jpg" style="max-height: 230px;">
     <img src="./assets/examples/example2.jpg" style="max-height: 230px;">
     <img src="./assets/examples/example4.jpg" style="max-height: 230px;">
-    <img src="./assets/examples/example4.jpg" style="max-height: 230px;">
 </div>
