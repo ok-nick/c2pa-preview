@@ -29,7 +29,7 @@ Install the prerequisites from [Tauri docs](https://v2.tauri.app/start/prerequis
 
 Then, install frontend packages (recommended [npm](https://www.npmjs.com)):
 ```bash
-$ npm install --prefix frontend --production
+$ npm install --prefix frontend
 ```
 
 Next, ensure [tauri-cli](https://crates.io/crates/tauri-cli) is installed and updated:

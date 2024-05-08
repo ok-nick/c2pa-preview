@@ -1,4 +1,4 @@
-name: "publish"
+name: publish
 on:
   workflow_dispatch:
   push:
@@ -54,6 +54,14 @@ jobs:
         with:
           workspaces: "./backend -> target"
 
+      - name: install Tauri CLI v2
+        run: npm install -g @tauri-apps/cli@2.0.0-beta.15
+
+      - name: install optional dependencies (npm bug fix)
+        run: |
+          npm install @rollup/rollup-linux-x64-gnu --prefix frontend --save-optional
+          npm install @rollup/rollup-win32-x64-msvc --prefix frontend --save-optional
+
       - uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -66,4 +74,7 @@ jobs:
           releaseBody: 'See the assets to download this version and install.'
           releaseDraft: true
           prerelease: false
+          updaterJsonPreferNsis: true
+          # specifying this overrides the default tauri-cli installer and uses our installed one above
+          tauriScript: "tauri"
           args: ${{ matrix.settings.args }}
