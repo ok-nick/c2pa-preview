@@ -58,6 +58,7 @@ export default function Editor() {
       {manifest && (
         <JsonView
           value={manifest}
+          objectSortKeys={true}
           displayDataTypes={false}
           displayObjectSize={false}
           collapsed={3}
