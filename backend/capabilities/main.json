@@ -18,6 +18,8 @@
     "core:menu:allow-new",
     "core:menu:allow-popup",
     "core:webview:allow-create-webview-window",
-    "core:event:allow-emit-to"
+    "core:event:allow-emit-to",
+    "core:window:allow-outer-size",
+    "core:window:allow-scale-factor"
   ]
 }

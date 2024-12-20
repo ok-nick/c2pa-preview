@@ -17,11 +17,13 @@ interface InspectProps {
   onError: (err: string) => void;
   manifestStore: L2ManifestStore;
   source: ProcessedSource;
+  menuBarHeight: number;
 }
 
 export default function Inspect({
   onError,
   manifestStore,
+  menuBarHeight,
   source,
 }: InspectProps) {
   const summaryRef = useRef<ManifestSummary | null>(null);
@@ -96,17 +98,12 @@ export default function Inspect({
   useEffect(() => {
     if (summaryRef.current) {
       const resizeObserver = new ResizeObserver((entries) => {
-        let height = entries[0].target.getBoundingClientRect().height;
+        const height = entries[0].target.getBoundingClientRect().height;
         if (height !== heightRef.current) {
           heightRef.current = height;
 
-          // https://github.com/tauri-apps/tauri/issues/6333
-          if (type() === "macos") {
-            height += 28;
-          }
-
           getCurrentWindow()
-            .setSize(new LogicalSize(304, height))
+            .setSize(new LogicalSize(304, height + menuBarHeight))
             .catch(onError);
         }
       });

@@ -9,6 +9,7 @@ import { emit, listen } from "@tauri-apps/api/event";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { getMatches } from "@tauri-apps/plugin-cli";
 import { readFile } from "@tauri-apps/plugin-fs";
+import { type } from "@tauri-apps/plugin-os";
 import { L2ManifestStore, createL2ManifestStore } from "c2pa";
 import mime from "mime/lite";
 import { useCallback, useEffect, useState } from "react";
@@ -61,6 +62,7 @@ export default function App() {
   const [manifestStore, setManifestStore] = useState<L2ManifestStore | null>(
     null,
   );
+  const [menuBarHeight, setMenuBarHeight] = useState<number | null>(null);
 
   // Must be outside, it internally calls a hook which must be at the top-level
   const provenance = useC2pa(processedSource?.origin);
@@ -83,6 +85,34 @@ export default function App() {
     setManifestStore(null);
     setInspectSource(source);
   }, []);
+
+  useEffect(() => {
+    if (menuBarHeight == null) {
+      // Window::setSize on macOS sets the entire window size (including the menu bar),
+      // getBoundingClientRect (used to calculate the size of the content credentials interface)
+      // returns the inner size of the window. Unfortunately, Window::outer_size and
+      // Window::inner_size inaccurately return the same values (from winit), I believe
+      // there are more underlying troubles with the macOS API itself. As a workaround, I compute
+      // the difference between the initial window size and the initial viewport size, then add it
+      // to the height when calling Window::setSize.
+      //
+      // More details on the issue: https://github.com/tauri-apps/tauri/issues/6333
+      if (type() == "macos") {
+        const inner_size = document.body.getBoundingClientRect();
+        const window = getCurrentWindow();
+        getCurrentWindow()
+          .outerSize()
+          .then(async (outer_size) => {
+            const scaleFactor = await window.scaleFactor();
+            const menuBarHeight =
+              outer_size.toLogical(scaleFactor).height - inner_size.height;
+            setMenuBarHeight(menuBarHeight);
+          });
+      } else {
+        setMenuBarHeight(0);
+      }
+    }
+  });
 
   // Convert source to C2PA-digestable format
   useEffect(() => {
@@ -186,6 +216,7 @@ export default function App() {
           onError={error}
           manifestStore={manifestStore}
           source={processedSource}
+          menuBarHeight={menuBarHeight}
         />
       )}
 
