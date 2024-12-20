@@ -30,7 +30,7 @@ function processSource(source: InspectSource): Promise<ProcessedSource> {
     // TODO: origin.mimeType is incorrect for drag&drop files, need to determine mime type based on
     //       file signature. Unfortunately, the file-type crate only supports nodejs. When the mime
     //       type is incorrect, a spontaneous promise error occurs in c2pa and breaks everything.
-    //       Either impl magic number checker in js or send to backend and call the infer crate.
+    //       Either impl signature checker in js or send to backend and call the infer crate.
     return Promise.resolve({
       origin,
       url: source.url,

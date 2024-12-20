@@ -69,9 +69,10 @@ impl Inspect {
         self.error_string(err.to_string());
     }
 
-    fn allow_file(&self, path: &Path) {
-        // TODO: handle error
-        self.app.fs_scope().allow_file(path);
+    fn allow_file(&mut self, path: &Path) {
+        if let Err(err) =  self.app.fs_scope().allow_file(path) {
+            self.error(err);
+        }
     }
 }
 
@@ -79,7 +80,7 @@ impl Inspect {
 pub fn run() {
     tauri::Builder::default()
         .setup(|app| {
-            let inspect = Inspect {
+            let mut inspect = Inspect {
                 app: app.handle().clone(),
                 ready: false,
                 queued: None,

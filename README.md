@@ -34,7 +34,7 @@ $ npm install --prefix frontend
 
 Next, ensure [tauri-cli](https://crates.io/crates/tauri-cli) is installed and updated:
 ```bash
-$ cargo install tauri-cli --version "2.0.0-beta.15" --locked --force
+$ cargo install tauri-cli
 ```
 
 Finally, build the app:
