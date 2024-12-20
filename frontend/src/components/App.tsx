@@ -103,16 +103,18 @@ export default function App() {
         getCurrentWindow()
           .outerSize()
           .then(async (outer_size) => {
-            const scaleFactor = await window.scaleFactor();
-            const menuBarHeight =
-              outer_size.toLogical(scaleFactor).height - inner_size.height;
-            setMenuBarHeight(menuBarHeight);
-          });
+            return window.scaleFactor().then((scaleFactor) => {
+              const menuBarHeight =
+                outer_size.toLogical(scaleFactor).height - inner_size.height;
+              setMenuBarHeight(menuBarHeight);
+            });
+          })
+          .catch(error);
       } else {
         setMenuBarHeight(0);
       }
     }
-  });
+  }, [error, menuBarHeight]);
 
   // Convert source to C2PA-digestable format
   useEffect(() => {

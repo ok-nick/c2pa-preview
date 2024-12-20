@@ -5,7 +5,6 @@ import { invoke } from "@tauri-apps/api/core";
 import { Menu, MenuItem } from "@tauri-apps/api/menu";
 import { WebviewWindow } from "@tauri-apps/api/webviewWindow";
 import { LogicalSize, getCurrentWindow } from "@tauri-apps/api/window";
-import { type } from "@tauri-apps/plugin-os";
 import { open } from "@tauri-apps/plugin-shell";
 import { L2ManifestStore, generateVerifyUrl } from "c2pa";
 import { ManifestSummary } from "c2pa-wc";
@@ -17,7 +16,7 @@ interface InspectProps {
   onError: (err: string) => void;
   manifestStore: L2ManifestStore;
   source: ProcessedSource;
-  menuBarHeight: number;
+  menuBarHeight: number | null;
 }
 
 export default function Inspect({
@@ -112,7 +111,7 @@ export default function Inspect({
 
       return () => resizeObserver.disconnect();
     }
-  }, [manifestStore, onError]);
+  }, [menuBarHeight, manifestStore, onError]);
 
   // Fixes anchors not redirecting when clicked (presumably because they are in shadow
   // DOMs, probably a Tauri bug?)
