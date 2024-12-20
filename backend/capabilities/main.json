@@ -6,18 +6,18 @@
     "cli:allow-cli-matches",
     "fs:allow-read-file",
     "dialog:allow-open",
-    "event:allow-emit",
-    "event:allow-listen",
-    "window:allow-set-size",
-    "window:allow-outer-position",
-    "window:allow-inner-position",
+    "core:event:allow-emit",
+    "core:event:allow-listen",
+    "core:window:allow-set-size",
+    "core:window:allow-outer-position",
+    "core:window:allow-inner-position",
     "os:allow-os-type",
     "shell:allow-open",
     "dialog:allow-message",
-    "event:allow-unlisten",
-    "menu:allow-new",
-    "menu:allow-popup",
-    "webview:allow-create-webview-window",
-    "event:allow-emit-to"
+    "core:event:allow-unlisten",
+    "core:menu:allow-new",
+    "core:menu:allow-popup",
+    "core:webview:allow-create-webview-window",
+    "core:event:allow-emit-to"
   ]
 }

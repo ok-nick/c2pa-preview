@@ -5,7 +5,7 @@ use std::{
     sync::{Arc, Mutex},
 };
 
-use tauri::{AppHandle, Manager};
+use tauri::{AppHandle, Emitter, Listener};
 use tauri_plugin_cli::CliExt;
 use tauri_plugin_fs::FsExt;
 
@@ -70,6 +70,7 @@ impl Inspect {
     }
 
     fn allow_file(&self, path: &Path) {
+        // TODO: handle error
         self.app.fs_scope().allow_file(path);
     }
 }

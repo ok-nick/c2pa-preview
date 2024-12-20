@@ -1,10 +1,11 @@
 {
+  "$schema": "https://schema.tauri.app/config/2",
   "productName": "c2pa-preview",
   "identifier": "com.c2pa-preview.dev",
   "build": {
-    "beforeDevCommand": "npm run dev --prefix frontend",
-    "beforeBuildCommand": "npm run build --prefix frontend",
-    "frontendDist": "../frontend/dist",
+    "beforeDevCommand": "npm run dev",
+    "beforeBuildCommand": "npm run build",
+    "frontendDist": "../dist",
     "devUrl": "http://localhost:1420"
   },
   "bundle": {

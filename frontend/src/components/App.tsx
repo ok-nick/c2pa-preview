@@ -6,9 +6,8 @@ import Upload from "./Upload";
 import { useC2pa } from "@contentauth/react";
 import { LogicalSize } from "@tauri-apps/api/dpi";
 import { emit, listen } from "@tauri-apps/api/event";
-import { getCurrent } from "@tauri-apps/api/window";
+import { getCurrentWindow } from "@tauri-apps/api/window";
 import { getMatches } from "@tauri-apps/plugin-cli";
-import { FileResponse } from "@tauri-apps/plugin-dialog";
 import { readFile } from "@tauri-apps/plugin-fs";
 import { L2ManifestStore, createL2ManifestStore } from "c2pa";
 import mime from "mime/lite";
@@ -16,7 +15,7 @@ import { useCallback, useEffect, useState } from "react";
 
 export interface InspectSource {
   // "string" being a path
-  origin: Blob | FileResponse | string;
+  origin: Blob | string;
   url?: string;
 }
 
@@ -36,7 +35,8 @@ function processSource(source: InspectSource): Promise<ProcessedSource> {
       origin,
       url: source.url,
     });
-  } else if (typeof origin === "string") {
+  } else {
+    // } else if (typeof origin === "string") {
     return readFile(origin).then((data) => {
       const mimeType = mime.getType(origin);
       if (mimeType) {
@@ -48,8 +48,6 @@ function processSource(source: InspectSource): Promise<ProcessedSource> {
         return Promise.reject(new Error(`MIME type not found for "${origin}"`));
       }
     });
-  } else {
-    return processSource({ origin: origin.path });
   }
 }
 
@@ -74,7 +72,7 @@ export default function App() {
     setProcessedSource(null);
     setManifestStore(null);
 
-    getCurrent().setSize(new LogicalSize(304, 242)).catch(logError);
+    getCurrentWindow().setSize(new LogicalSize(304, 242)).catch(logError);
 
     logError(err);
   }, []);

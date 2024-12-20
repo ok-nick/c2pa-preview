@@ -4,7 +4,7 @@ import "./Inspect.css";
 import { invoke } from "@tauri-apps/api/core";
 import { Menu, MenuItem } from "@tauri-apps/api/menu";
 import { WebviewWindow } from "@tauri-apps/api/webviewWindow";
-import { LogicalSize, getCurrent } from "@tauri-apps/api/window";
+import { LogicalSize, getCurrentWindow } from "@tauri-apps/api/window";
 import { type } from "@tauri-apps/plugin-os";
 import { open } from "@tauri-apps/plugin-shell";
 import { L2ManifestStore, generateVerifyUrl } from "c2pa";
@@ -96,23 +96,17 @@ export default function Inspect({
   useEffect(() => {
     if (summaryRef.current) {
       const resizeObserver = new ResizeObserver((entries) => {
-        const height = entries[0].target.getBoundingClientRect().height;
+        let height = entries[0].target.getBoundingClientRect().height;
         if (height !== heightRef.current) {
           heightRef.current = height;
 
           // https://github.com/tauri-apps/tauri/issues/6333
-          // TODO: should this be cached?
-          type()
-            .then((type) => {
-              if (type === "macos") {
-                return height + 28;
-              } else {
-                return height;
-              }
-            })
-            .then((height) =>
-              getCurrent().setSize(new LogicalSize(304, height)),
-            )
+          if (type() === "macos") {
+            height += +28;
+          }
+
+          getCurrentWindow()
+            .setSize(new LogicalSize(304, height))
             .catch(onError);
         }
       });
