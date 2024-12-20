@@ -102,7 +102,7 @@ export default function Inspect({
 
           // https://github.com/tauri-apps/tauri/issues/6333
           if (type() === "macos") {
-            height += +28;
+            height += 28;
           }
 
           getCurrentWindow()
