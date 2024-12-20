@@ -70,7 +70,7 @@ impl Inspect {
     }
 
     fn allow_file(&mut self, path: &Path) {
-        if let Err(err) =  self.app.fs_scope().allow_file(path) {
+        if let Err(err) = self.app.fs_scope().allow_file(path) {
             self.error(err);
         }
     }
