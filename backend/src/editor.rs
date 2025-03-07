@@ -1,4 +1,6 @@
-use c2pa::ManifestStoreReport;
+use std::io::Cursor;
+
+use c2pa::Reader;
 use tauri::{
     command,
     ipc::{InvokeBody, Request, Response},
@@ -11,7 +13,7 @@ pub fn c2pa_report(request: Request<'_>) -> Result<Response, String> {
             .ok_or_else(|| "Could not get MIME type for file".to_owned())?
             .extension();
         Ok(Response::new(
-            ManifestStoreReport::from_bytes(mime, bytes)
+            Reader::from_stream(mime, Cursor::new(bytes))
                 .map_err(|err| err.to_string())?
                 .to_string()
                 .into_bytes(),

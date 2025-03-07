@@ -14,8 +14,8 @@ tauri-plugin-fs = "2.2.0"
 tauri-plugin-dialog = "2.2.0"
 tauri-plugin-os = "2.2.0"
 tauri-plugin-shell = "2.2.0"
-serde_json = "1.0.133"
-c2pa = { version = "0.40.0", features = [
+serde_json = "1.0.140"
+c2pa = { version = "0.46.0", features = [
   "fetch_remote_manifests",
   "pdf",
   "image",
