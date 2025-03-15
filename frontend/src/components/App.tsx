@@ -198,7 +198,7 @@ export default function App() {
 
     listen("error", (event) => {
       error(event.payload as string);
-    });
+    }).catch(error);
 
     // Tell the backend that the frontend is ready for inspect requests
     emit("ready").catch(error);

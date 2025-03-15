@@ -102,7 +102,7 @@ export default function Inspect({
           heightRef.current = height;
 
           getCurrentWindow()
-            .setSize(new LogicalSize(304, height + (menuBarHeight || 0)))
+            .setSize(new LogicalSize(304, height + (menuBarHeight ?? 0)))
             .catch(onError);
         }
       });
