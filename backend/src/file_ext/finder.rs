@@ -1,13 +1,16 @@
 use objc2::{
-    define_class, msg_send, rc::Retained, AllocAnyThread, DeclaredClass, MainThreadMarker,
+    define_class, msg_send, rc::Retained, AllocAnyThread, ClassType, DeclaredClass,
+    MainThreadMarker,
 };
-use objc2_app_kit::{
-    NSApplication, NSPasteboard, NSPasteboardTypeFileURL, NSUpdateDynamicServices,
+use objc2_app_kit::{NSApplication, NSPasteboard, NSUpdateDynamicServices};
+use objc2_foundation::{
+    ns_string, NSArray, NSDictionary, NSError, NSInteger, NSObject, NSString, NSURL,
 };
-use objc2_foundation::{NSError, NSObject, NSString, NSURL};
 
 use std::{
+    error::Error,
     ffi::CStr,
+    fmt::Display,
     path::PathBuf,
     str,
     sync::{Arc, Mutex},
@@ -23,44 +26,29 @@ define_class!(
 
     impl ContextMenu {
         #[unsafe(method(inspectCredentialsWithPasteboard:userData:error:))]
-        fn inspect_credentials(
+        fn _inspect_credentials(
             &self,
             pasteboard: *mut NSPasteboard,
             _user_data: *mut NSString,
-            _error: *mut *mut NSError
+            error: *mut *mut NSError
         ) {
-            unsafe {
-                let mut inspect = self.ivars().lock().unwrap();
-                // TODO: there's got to be a better way to do this
-                match (*pasteboard).stringForType(NSPasteboardTypeFileURL) {
-                    Some(path) => {
-                        match NSURL::fileURLWithPath(&path).standardizedURL() {
-                            Some(path) => {
-                                match path.path() {
-                                    Some(path) => {
-                                        let path = CStr::from_ptr(path.UTF8String());
-                                        match str::from_utf8(path.to_bytes()) {
-                                            Ok(path) => {
-                                                // TODO: set window pos to the current mouse pos?
-
-                                                // TODO: maybe open a new window with path?
-                                                if let Err(err) = inspect.send(PathBuf::from(path)) {
-                                                    inspect.error(err);
-                                                }
-                                            }
-                                            Err(err) => {
-                                                inspect.error(err);
-                                            }
-                                        }
-                                    }
-                                    None => inspect.error_string("Failed to read path from context menu because: path does not conform to RFC 1808 or the file no longer exists".to_owned())
-                                }
-                            }
-                            None => inspect.error_string("Failed to read path from context menu because path does not conform to RFC 1808".to_owned())
-                        }
+            let mut inspect = self.ivars().lock().unwrap();
+            if let Err(err) = unsafe {self.inspect_credentials(pasteboard, &mut inspect) } {
+                if !error.is_null() {
+                    unsafe {
+                    *error = Retained::into_raw(NSError::errorWithDomain_code_userInfo(
+                        // TODO: reference string from config
+                        ns_string!("com.c2pa-preview.dev"),
+                        err.code(),
+                        Some(&NSDictionary::from_slices(
+                            &[ns_string!("description")],
+                            &[NSString::from_str(&err.to_string()).as_ref()],
+                        )),
+                    ));
                     }
-                    None => inspect.error_string("Failed to read path from context menu".to_owned())
                 }
+
+                inspect.error(err);
             }
         }
     }
@@ -71,6 +59,30 @@ impl ContextMenu {
         let this = Self::alloc().set_ivars(inspect);
         unsafe { msg_send![super(this), init] }
     }
+
+    unsafe fn inspect_credentials(
+        &self,
+        pasteboard: *mut NSPasteboard,
+        inspect: &mut Inspect,
+    ) -> Result<(), FinderError> {
+        let paths = (*pasteboard)
+            .readObjectsForClasses_options(&NSArray::from_slice(&[NSURL::class()]), None)
+            .ok_or(FinderError::FailedToGetPath)?;
+        for path in paths {
+            let path = path
+                .downcast::<NSURL>()
+                .map_err(|_| FinderError::FailedToGetPath)?
+                .path()
+                .ok_or(FinderError::PathInvalidOrNoLongerExists)?;
+            let path = str::from_utf8(CStr::from_ptr(path.UTF8String()).to_bytes())
+                .map_err(|_| FinderError::PathInvalidUtf8)?;
+
+            // TODO: set window pos to the current mouse pos?
+            inspect.send(PathBuf::from(path))?;
+        }
+
+        Ok(())
+    }
 }
 
 pub fn load(inspect: Arc<Mutex<Inspect>>) {
@@ -80,5 +92,49 @@ pub fn load(inspect: Arc<Mutex<Inspect>>) {
             .setServicesProvider(Some(&ContextMenu::init_with(inspect)));
 
         NSUpdateDynamicServices();
+    }
+}
+
+#[derive(Debug)]
+pub enum FinderError {
+    Tauri(tauri::Error),
+    FailedToGetPath,
+    PathInvalidOrNoLongerExists,
+    PathInvalidUtf8,
+}
+
+impl Error for FinderError {}
+
+impl FinderError {
+    pub fn code(&self) -> NSInteger {
+        match self {
+            FinderError::Tauri(_) => 1001,
+            FinderError::FailedToGetPath => 1002,
+            FinderError::PathInvalidOrNoLongerExists => 1003,
+            FinderError::PathInvalidUtf8 => 1004,
+        }
+    }
+}
+
+impl Display for FinderError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            FinderError::Tauri(err) => err.fmt(f),
+            FinderError::FailedToGetPath => {
+                write!(f, "Failed to get file path from the context menu")
+            }
+            FinderError::PathInvalidOrNoLongerExists => {
+                write!(f, "Failed to parse file path from the context menu")
+            }
+            FinderError::PathInvalidUtf8 => {
+                write!(f, "Failed to parse file path from the context menu")
+            }
+        }
+    }
+}
+
+impl From<tauri::Error> for FinderError {
+    fn from(err: tauri::Error) -> Self {
+        FinderError::Tauri(err)
     }
 }
