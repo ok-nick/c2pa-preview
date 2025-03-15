@@ -24,16 +24,16 @@ infer = "0.16.0"
 
 # TODO: cleanup features on objc2 crates
 [target.'cfg(target_os = "macos")'.dependencies]
-objc2-uniform-type-identifiers = { version = "0.2.0", features = [
+objc2-uniform-type-identifiers = { version = "0.3.0", features = [
   "UTCoreTypes",
   "UTType",
 ] }
-objc2-app-kit = { version = "0.2.0", features = [
+objc2-app-kit = { version = "0.3.0", features = [
   "NSApplication",
   "NSResponder",
   "NSPasteboard",
 ] }
-objc2-foundation = { version = "0.2.0", features = [
+objc2-foundation = { version = "0.3.0", features = [
   "NSExtensionRequestHandling",
   "NSExtensionContext",
   "NSExtensionItem",
@@ -45,10 +45,9 @@ objc2-foundation = { version = "0.2.0", features = [
   "NSString",
   "block2",
   "NSThread",
-  "dispatch",
   "NSRunLoop",
 ] }
-objc2 = "0.5.1"
+objc2 = "0.6.0"
 
 [features]
 # This feature is used for production builds or when a dev server is not specified, DO NOT REMOVE!!
