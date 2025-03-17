@@ -34,8 +34,7 @@ export default function Inspect({
     MenuItem.new({
       text: "View JSON Manifest",
       action: () => {
-        const label = `editor-${uuid()}`;
-        const webview = new WebviewWindow(label, {
+        const webview = new WebviewWindow(`editor-${uuid()}`, {
           url: "#/editor",
           // TODO: add file name/manifest label to title
           title: "c2pa-preview editor",
@@ -60,7 +59,7 @@ export default function Inspect({
                   readonly: true,
                   manifest,
                 };
-                return webview.emitTo(label, "edit-info", payload);
+                return webview.emit("edit-info", payload);
               })
               .catch(onError);
           })
@@ -102,7 +101,7 @@ export default function Inspect({
           heightRef.current = height;
 
           getCurrentWindow()
-            .setSize(new LogicalSize(304, height + (menuBarHeight || 0)))
+            .setSize(new LogicalSize(304, height + (menuBarHeight ?? 0)))
             .catch(onError);
         }
       });
