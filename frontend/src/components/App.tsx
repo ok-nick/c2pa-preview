@@ -243,7 +243,6 @@ export default function App() {
       {!loading && !manifestStore && (
         <Upload onError={error} onInspect={handleInspect} />
       )}
-
       {!loading && manifestStore && processedSource && (
         <Inspect
           onError={error}
@@ -252,7 +251,6 @@ export default function App() {
           menuBarHeight={menuBarHeight}
         />
       )}
-
       {loading && <Loader />}
     </div>
   );
