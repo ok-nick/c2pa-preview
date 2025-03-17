@@ -13,15 +13,28 @@ use std::{
     fmt::Display,
     path::PathBuf,
     str,
-    sync::{Arc, Mutex},
+    sync::atomic::{AtomicBool, Ordering},
+    time::{Duration, Instant},
 };
 
 use crate::Inspect;
 
+// There's no way to tell if the finder menu button was clicked on startup or later in the program's
+// lifecycle. Thus, we must have some sort of "startup duration" to know when to send the inspect to
+// the startup window or if we must create a new window.
+const STARTUP_DURATION: Duration = Duration::from_millis(500);
+
+#[derive(Debug)]
+pub struct StartupInspect {
+    startup_time: Instant,
+    startup_used: AtomicBool,
+    inner: Inspect,
+}
+
 define_class!(
     #[unsafe(super(NSObject))]
     #[name = "ContextMenu"]
-    #[ivars = Arc<Mutex<Inspect>>]
+    #[ivars = StartupInspect]
     struct ContextMenu;
 
     impl ContextMenu {
@@ -32,38 +45,44 @@ define_class!(
             _user_data: *mut NSString,
             error: *mut *mut NSError
         ) {
-            let mut inspect = self.ivars().lock().unwrap();
-            if let Err(err) = unsafe {self.inspect_credentials(pasteboard, &mut inspect) } {
+            // TODO: if an error occurs before spawning a new window, spawn a new window and emit error
+            //       rather than displaying error on the startup window
+            let startup_inspect = self.ivars();
+            if let Err(err) = unsafe {self.inspect_credentials(pasteboard, startup_inspect) } {
                 if !error.is_null() {
                     unsafe {
-                    *error = Retained::into_raw(NSError::errorWithDomain_code_userInfo(
-                        // TODO: reference string from config
-                        ns_string!("com.c2pa-preview.dev"),
-                        err.code(),
-                        Some(&NSDictionary::from_slices(
-                            &[ns_string!("description")],
-                            &[NSString::from_str(&err.to_string()).as_ref()],
-                        )),
-                    ));
+                        *error = Retained::into_raw(NSError::errorWithDomain_code_userInfo(
+                            // TODO: reference string from config
+                            ns_string!("com.c2pa-preview.dev"),
+                            err.code(),
+                            Some(&NSDictionary::from_slices(
+                                &[ns_string!("description")],
+                                &[NSString::from_str(&err.to_string()).as_ref()],
+                            )),
+                        ));
                     }
                 }
 
-                inspect.error(err);
+                startup_inspect.inner.error(err);
             }
         }
     }
 );
 
 impl ContextMenu {
-    fn init_with(inspect: Arc<Mutex<Inspect>>) -> Retained<Self> {
-        let this = Self::alloc().set_ivars(inspect);
+    fn init_with(inspect: Inspect) -> Retained<Self> {
+        let this = Self::alloc().set_ivars(StartupInspect {
+            startup_time: Instant::now(),
+            startup_used: AtomicBool::new(false),
+            inner: inspect,
+        });
         unsafe { msg_send![super(this), init] }
     }
 
     unsafe fn inspect_credentials(
         &self,
         pasteboard: *mut NSPasteboard,
-        inspect: &mut Inspect,
+        startup_inspect: &StartupInspect,
     ) -> Result<(), FinderError> {
         let paths = (*pasteboard)
             .readObjectsForClasses_options(&NSArray::from_slice(&[NSURL::class()]), None)
@@ -76,16 +95,28 @@ impl ContextMenu {
                 .ok_or(FinderError::PathInvalidOrNoLongerExists)?;
             let path = str::from_utf8(CStr::from_ptr(path.UTF8String()).to_bytes())
                 .map_err(|_| FinderError::PathInvalidUtf8)?;
+            let path = PathBuf::from(path);
+
+            // If we haven't already used the startup window and it's within the startup duration, inspect
+            // this file on the startup window, otherwise create a new window.
+            if !startup_inspect.startup_used.load(Ordering::Relaxed)
+                && Instant::now().duration_since(startup_inspect.startup_time) < STARTUP_DURATION
+            {
+                startup_inspect.startup_used.store(true, Ordering::Relaxed);
+                startup_inspect.inner.send(path)?;
+            } else {
+                let inspect = Inspect::new(startup_inspect.inner.app_handle())?;
+                inspect.send(path)?;
+            }
 
             // TODO: set window pos to the current mouse pos?
-            inspect.send(PathBuf::from(path))?;
         }
 
         Ok(())
     }
 }
 
-pub fn load(inspect: Arc<Mutex<Inspect>>) {
+pub fn load(inspect: Inspect) {
     unsafe {
         let mtm = MainThreadMarker::new().unwrap();
         NSApplication::sharedApplication(mtm)
