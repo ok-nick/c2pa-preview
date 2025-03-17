@@ -3,8 +3,11 @@ import { EditorPayload } from "./Editor";
 import "./Inspect.css";
 import { invoke } from "@tauri-apps/api/core";
 import { Menu, MenuItem } from "@tauri-apps/api/menu";
-import { WebviewWindow } from "@tauri-apps/api/webviewWindow";
-import { LogicalSize, getCurrentWindow } from "@tauri-apps/api/window";
+import {
+  getCurrentWebviewWindow,
+  WebviewWindow,
+} from "@tauri-apps/api/webviewWindow";
+import { LogicalSize } from "@tauri-apps/api/window";
 import { open } from "@tauri-apps/plugin-shell";
 import { L2ManifestStore, generateVerifyUrl } from "c2pa";
 import { ManifestSummary } from "c2pa-wc";
@@ -38,7 +41,7 @@ export default function Inspect({
           url: "#/editor",
           // TODO: add file name/manifest label to title
           title: "c2pa-preview editor",
-          parent: "main",
+          parent: getCurrentWebviewWindow().label,
         });
 
         // TODO: are these events auto unlistened when the window is dropped?
@@ -100,7 +103,7 @@ export default function Inspect({
         if (height !== heightRef.current) {
           heightRef.current = height;
 
-          getCurrentWindow()
+          getCurrentWebviewWindow()
             .setSize(new LogicalSize(304, height + (menuBarHeight ?? 0)))
             .catch(onError);
         }
