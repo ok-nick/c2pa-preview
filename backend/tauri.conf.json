@@ -34,15 +34,6 @@
   },
   "app": {
     "withGlobalTauri": true,
-    "windows": [
-      {
-        "title": "c2pa-preview",
-        "width": 304,
-        "height": 256,
-        "resizable": false,
-        "dragDropEnabled": false
-      }
-    ],
     "security": {
       "capabilities": ["main"]
     }

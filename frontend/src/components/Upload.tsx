@@ -13,23 +13,27 @@ export default function Upload({ onError, onInspect }: UploadProps) {
 
   function selectFile() {
     open({
+      // TODO: multiple: true,
       filters: [
         {
           name: "Image",
           extensions: [
-            "jpeg",
-            "jpg",
-            "png",
-            "svg",
-            "webp",
-            "avi",
+            "avif",
+            "c2pa",
             "dng",
+            "gif",
             "heic",
             "heif",
+            "jpg",
+            "jpeg",
+            "png",
+            "svg",
+            "tif",
             "tiff",
+            "webp",
           ],
         },
-        { name: "Video", extensions: ["avi", "mp4"] },
+        { name: "Video", extensions: ["avi", "mp4", "mov"] },
         { name: "Audio", extensions: ["m4a", "mp3", "wav"] },
         { name: "Document", extensions: ["pdf"] },
       ],
@@ -59,8 +63,8 @@ export default function Upload({ onError, onInspect }: UploadProps) {
         </div>
 
         <div className="supported-formats">
-          Supported formats: AVI, AVIF, DNG, HEIC, HEIF, JPEG, M4A, MP3, MP4,
-          PDF, PNG, SVG, TIFF, WAV, WebP
+          Supported formats: AVI, AVIF, C2PA, DNG, GIF, HEIC, HEIF, JPG, JPEG,
+          M4A, MP3, MP4, MOV, PDF, PNG, SVG, TIF, TIFF, WAV, WEBP
         </div>
       </div>
     </div>

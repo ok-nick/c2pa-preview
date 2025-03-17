@@ -5,8 +5,7 @@ import Loader from "./Loader";
 import Upload from "./Upload";
 import { useC2pa } from "@contentauth/react";
 import { LogicalSize } from "@tauri-apps/api/dpi";
-import { emit, listen } from "@tauri-apps/api/event";
-import { getCurrentWindow } from "@tauri-apps/api/window";
+import { getCurrentWebviewWindow } from "@tauri-apps/api/webviewWindow";
 import { getMatches } from "@tauri-apps/plugin-cli";
 import { readFile } from "@tauri-apps/plugin-fs";
 import { type } from "@tauri-apps/plugin-os";
@@ -67,17 +66,22 @@ export default function App() {
   // Must be outside, it internally calls a hook which must be at the top-level
   const provenance = useC2pa(processedSource?.origin);
 
-  const error = useCallback((err: string) => {
-    // If an error occurs then it should go back to upload screen
-    setLoading(false);
-    setInspectSource(null);
-    setProcessedSource(null);
-    setManifestStore(null);
+  const error = useCallback(
+    (err: string) => {
+      // If an error occurs then it should go back to upload screen
+      setLoading(false);
+      setInspectSource(null);
+      setProcessedSource(null);
+      setManifestStore(null);
 
-    getCurrentWindow().setSize(new LogicalSize(304, 242)).catch(logError);
+      getCurrentWebviewWindow()
+        .setSize(new LogicalSize(304, 256 - (menuBarHeight ?? 0)))
+        .catch(logError);
 
-    logError(err);
-  }, []);
+      logError(err);
+    },
+    [menuBarHeight],
+  );
 
   const handleInspect = useCallback((source: InspectSource) => {
     setLoading(true);
@@ -99,8 +103,8 @@ export default function App() {
       // More details on the issue: https://github.com/tauri-apps/tauri/issues/6333
       if (type() == "macos") {
         const inner_size = document.body.getBoundingClientRect();
-        const window = getCurrentWindow();
-        getCurrentWindow()
+        const window = getCurrentWebviewWindow();
+        getCurrentWebviewWindow()
           .outerSize()
           .then(async (outer_size) => {
             return window.scaleFactor().then((scaleFactor) => {
@@ -136,9 +140,21 @@ export default function App() {
           })
           .catch(error);
       } else {
-        error(new Error("Manifest not found for file").toString());
+        // This tries to give more context to the source of the file
+        let source = "file";
+        if (typeof inspectSource?.origin === "string") {
+          source = `path "${inspectSource?.origin}""`;
+        } else if (
+          inspectSource?.url !== undefined &&
+          inspectSource?.url !== ""
+        ) {
+          source = `url "${inspectSource.url}"`;
+        }
+
+        error(new Error(`Manifest not found for ${source}`).toString());
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [error, provenance]);
 
   // Handle file drops
@@ -168,12 +184,11 @@ export default function App() {
     };
   }, [handleInspect]);
 
-  // Handle CLI args and sources passed from backend (like for file extension)
+  // Handle sources and errors passed from CLI and backend
   useEffect(() => {
     let isMounted = true;
-    let unlisten: (() => void) | null = null;
+    const unlistens: (() => void)[] = [];
 
-    // File passed from CLI
     getMatches()
       .then((matches) => {
         const path = matches.args.path?.value;
@@ -183,29 +198,41 @@ export default function App() {
       })
       .catch(error);
 
-    // File passed from file extension
-    listen("inspect", (event) => {
-      handleInspect({ origin: event.payload as string });
-    })
+    getCurrentWebviewWindow()
+      .listen("error", (event) => {
+        error(event.payload as string);
+      })
       .then((unlistenFn) => {
         if (isMounted) {
-          unlisten = unlistenFn;
+          unlistens.push(unlistenFn);
         } else {
           unlistenFn();
         }
       })
       .catch(error);
 
-    listen("error", (event) => {
-      error(event.payload as string);
-    }).catch(error);
+    // File passed from file extension
+    getCurrentWebviewWindow()
+      .listen("inspect", (event) => {
+        handleInspect({ origin: event.payload as string });
+      })
+      .then((unlistenFn) => {
+        if (isMounted) {
+          unlistens.push(unlistenFn);
+        } else {
+          unlistenFn();
+        }
+      })
+      .catch(error);
 
     // Tell the backend that the frontend is ready for inspect requests
-    emit("ready").catch(error);
+    getCurrentWebviewWindow()
+      .emit("ready", getCurrentWebviewWindow().label)
+      .catch(error);
 
     return () => {
       isMounted = false;
-      if (unlisten) {
+      for (const unlisten of unlistens) {
         unlisten();
       }
     };
