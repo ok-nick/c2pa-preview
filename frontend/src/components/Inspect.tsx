@@ -37,7 +37,8 @@ export default function Inspect({
     MenuItem.new({
       text: "View JSON Manifest",
       action: () => {
-        const webview = new WebviewWindow(`editor-${uuid()}`, {
+        const label = `editor-${uuid()}`;
+        const webview = new WebviewWindow(label, {
           url: "#/editor",
           // TODO: add file name/manifest label to title
           title: "c2pa-preview editor",
@@ -47,7 +48,6 @@ export default function Inspect({
         // TODO: are these events auto unlistened when the window is dropped?
         webview
           .listen("request-edit-info", () => {
-            console.log("RECEIVED");
             source.origin
               .arrayBuffer()
               .then((buffer) => new Uint8Array(buffer))
@@ -62,7 +62,7 @@ export default function Inspect({
                   readonly: true,
                   manifest,
                 };
-                return webview.emit("edit-info", payload);
+                return webview.emitTo(label, "edit-info", payload);
               })
               .catch(onError);
           })
