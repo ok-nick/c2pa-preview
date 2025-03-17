@@ -5,14 +5,14 @@ description = "Preview C2PA content credentials on desktop"
 edition = "2021"
 
 [build-dependencies]
-tauri-build = { version = "2.0.3", features = [] }
+tauri-build = { version = "2.0.6", features = [] }
 
 [dependencies]
-tauri = { version = "2.1.1", features = [] }
+tauri = { version = "2.3.1", features = [] }
 tauri-plugin-cli = "2.2.0"
 tauri-plugin-fs = "2.2.0"
 tauri-plugin-dialog = "2.2.0"
-tauri-plugin-os = "2.2.0"
+tauri-plugin-os = "2.2.1"
 tauri-plugin-shell = "2.2.0"
 serde_json = "1.0.140"
 c2pa = { version = "0.46.0", features = [
@@ -20,7 +20,7 @@ c2pa = { version = "0.46.0", features = [
   "pdf",
   "image",
 ] }
-infer = "0.16.0"
+infer = "0.19.0"
 
 # TODO: cleanup features on objc2 crates
 [target.'cfg(target_os = "macos")'.dependencies]
