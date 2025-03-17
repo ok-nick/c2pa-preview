@@ -65,20 +65,24 @@ impl Inspect {
         Ok(inspect)
     }
 
+    #[allow(dead_code)]
     pub fn app_handle(&self) -> AppHandle {
         self.app.clone()
     }
 
+    #[allow(dead_code)]
     pub fn send(&self, path: PathBuf) -> tauri::Result<()> {
         let mut state = self.state.lock().unwrap();
         state.send(&self.app, path)
     }
 
+    #[allow(dead_code)]
     pub fn error_string(&self, error: String) {
         let mut state = self.state.lock().unwrap();
         state.error_string(&self.app, error)
     }
 
+    #[allow(dead_code)]
     pub fn error<T: Error>(&self, err: T) {
         self.error_string(err.to_string());
     }
@@ -99,6 +103,7 @@ pub struct InspectState {
 }
 
 impl InspectState {
+    #[allow(dead_code)]
     pub fn send(&mut self, app: &AppHandle, path: PathBuf) -> tauri::Result<()> {
         match self.ready {
             true => {
