@@ -10,7 +10,7 @@
     "tauri": "tauri"
   },
   "dependencies": {
-    "@contentauth/react": "0.2.66",
+    "@contentauth/react": "0.2.74",
     "@tauri-apps/api": "2.1.1",
     "@tauri-apps/cli": "^2.1.0",
     "@tauri-apps/plugin-cli": "2.2.0",
@@ -19,8 +19,8 @@
     "@tauri-apps/plugin-os": "2.2.0",
     "@tauri-apps/plugin-shell": "2.2.0",
     "@uiw/react-json-view": "2.0.0-alpha.30",
-    "c2pa": "0.24.2",
-    "c2pa-wc": "0.13.16",
+    "c2pa": "0.28.2",
+    "c2pa-wc": "0.13.24",
     "mime": "4.0.6",
     "react": "18.3.1",
     "react-dom": "18.3.1",
