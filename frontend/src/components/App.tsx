@@ -66,19 +66,22 @@ export default function App() {
   // Must be outside, it internally calls a hook which must be at the top-level
   const provenance = useC2pa(processedSource?.origin);
 
-  const error = useCallback((err: string) => {
-    // If an error occurs then it should go back to upload screen
-    setLoading(false);
-    setInspectSource(null);
-    setProcessedSource(null);
-    setManifestStore(null);
+  const error = useCallback(
+    (err: string) => {
+      // If an error occurs then it should go back to upload screen
+      setLoading(false);
+      setInspectSource(null);
+      setProcessedSource(null);
+      setManifestStore(null);
 
-    getCurrentWebviewWindow()
-      .setSize(new LogicalSize(304, 256 - (menuBarHeight ?? 0)))
-      .catch(logError);
+      getCurrentWebviewWindow()
+        .setSize(new LogicalSize(304, 256 - (menuBarHeight ?? 0)))
+        .catch(logError);
 
-    logError(err);
-  }, []);
+      logError(err);
+    },
+    [menuBarHeight],
+  );
 
   const handleInspect = useCallback((source: InspectSource) => {
     setLoading(true);
@@ -141,13 +144,17 @@ export default function App() {
         let source = "file";
         if (typeof inspectSource?.origin === "string") {
           source = `path "${inspectSource?.origin}""`;
-        } else if (inspectSource?.url !== undefined) {
+        } else if (
+          inspectSource?.url !== undefined &&
+          inspectSource?.url !== ""
+        ) {
           source = `url "${inspectSource.url}"`;
         }
 
         error(new Error(`Manifest not found for ${source}`).toString());
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [error, provenance]);
 
   // Handle file drops
@@ -180,7 +187,7 @@ export default function App() {
   // Handle sources and errors passed from CLI and backend
   useEffect(() => {
     let isMounted = true;
-    let unlistens: (() => void)[] = [];
+    const unlistens: (() => void)[] = [];
 
     getMatches()
       .then((matches) => {
