@@ -3,30 +3,26 @@
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
+    systems.url = "github:nix-systems/default";
   };
 
   outputs = {
     self,
     nixpkgs,
+    systems,
   }: let
-    # TODO: all systems
-    system = "aarch64-darwin";
-    pkgs = import nixpkgs {
-      inherit system;
-    };
+    forEachSystem = nixpkgs.lib.genAttrs (import systems);
   in {
-    devShells.${system}.default = pkgs.mkShell {
-      nativeBuildInputs = with pkgs;
-        [
-          cargo-tauri
-
-          libiconv
-        ]
-        ++ (with darwin.apple_sdk.frameworks; [
-          Carbon
-          WebKit
-          UniformTypeIdentifiers
-        ]);
-    };
+    devShells = forEachSystem (
+      system: let
+        pkgs = nixpkgs.legacyPackages.${system};
+      in {
+        default = pkgs.mkShell {
+          nativeBuildInputs = with pkgs; [
+            cargo-tauri
+          ];
+        };
+      }
+    );
   };
 }
