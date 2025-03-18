@@ -75,7 +75,8 @@ export default function App() {
       setManifestStore(null);
 
       getCurrentWebviewWindow()
-        .setSize(new LogicalSize(304, 256 - (menuBarHeight ?? 0)))
+        // TODO: share size w/ backend code
+        .setSize(new LogicalSize(304, 256))
         .catch(logError);
 
       logError(err);
