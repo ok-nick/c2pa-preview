@@ -66,23 +66,20 @@ export default function App() {
   // Must be outside, it internally calls a hook which must be at the top-level
   const provenance = useC2pa(processedSource?.origin);
 
-  const error = useCallback(
-    (err: string) => {
-      // If an error occurs then it should go back to upload screen
-      setLoading(false);
-      setInspectSource(null);
-      setProcessedSource(null);
-      setManifestStore(null);
+  const error = useCallback((err: string) => {
+    // If an error occurs then it should go back to upload screen
+    setLoading(false);
+    setInspectSource(null);
+    setProcessedSource(null);
+    setManifestStore(null);
 
-      getCurrentWebviewWindow()
-        // TODO: share size w/ backend code
-        .setSize(new LogicalSize(304, 256))
-        .catch(logError);
+    getCurrentWebviewWindow()
+      // TODO: share size w/ backend code
+      .setSize(new LogicalSize(304, 256))
+      .catch(logError);
 
-      logError(err);
-    },
-    [menuBarHeight],
-  );
+    logError(err);
+  }, []);
 
   const handleInspect = useCallback((source: InspectSource) => {
     setLoading(true);
