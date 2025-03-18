@@ -1,10 +1,10 @@
 use objc2::{
-    define_class, msg_send, rc::Retained, AllocAnyThread, ClassType, DeclaredClass,
-    MainThreadMarker,
+    AllocAnyThread, ClassType, DeclaredClass, MainThreadMarker, define_class, msg_send,
+    rc::Retained,
 };
 use objc2_app_kit::{NSApplication, NSPasteboard, NSUpdateDynamicServices};
 use objc2_foundation::{
-    ns_string, NSArray, NSDictionary, NSError, NSInteger, NSObject, NSString, NSURL,
+    NSArray, NSDictionary, NSError, NSInteger, NSObject, NSString, NSURL, ns_string,
 };
 
 use std::{
@@ -84,32 +84,35 @@ impl ContextMenu {
         pasteboard: *mut NSPasteboard,
         startup_inspect: &StartupInspect,
     ) -> Result<(), FinderError> {
-        let paths = (*pasteboard)
-            .readObjectsForClasses_options(&NSArray::from_slice(&[NSURL::class()]), None)
-            .ok_or(FinderError::FailedToGetPath)?;
-        for path in paths {
-            let path = path
-                .downcast::<NSURL>()
-                .map_err(|_| FinderError::FailedToGetPath)?
-                .path()
-                .ok_or(FinderError::PathInvalidOrNoLongerExists)?;
-            let path = str::from_utf8(CStr::from_ptr(path.UTF8String()).to_bytes())
-                .map_err(|_| FinderError::PathInvalidUtf8)?;
-            let path = PathBuf::from(path);
+        unsafe {
+            let paths = (*pasteboard)
+                .readObjectsForClasses_options(&NSArray::from_slice(&[NSURL::class()]), None)
+                .ok_or(FinderError::FailedToGetPath)?;
+            for path in paths {
+                let path = path
+                    .downcast::<NSURL>()
+                    .map_err(|_| FinderError::FailedToGetPath)?
+                    .path()
+                    .ok_or(FinderError::PathInvalidOrNoLongerExists)?;
+                let path = str::from_utf8(CStr::from_ptr(path.UTF8String()).to_bytes())
+                    .map_err(|_| FinderError::PathInvalidUtf8)?;
+                let path = PathBuf::from(path);
 
-            // If we haven't already used the startup window and it's within the startup duration, inspect
-            // this file on the startup window, otherwise create a new window.
-            if !startup_inspect.startup_used.load(Ordering::Relaxed)
-                && Instant::now().duration_since(startup_inspect.startup_time) < STARTUP_DURATION
-            {
-                startup_inspect.startup_used.store(true, Ordering::Relaxed);
-                startup_inspect.inner.send(path)?;
-            } else {
-                let inspect = Inspect::new(startup_inspect.inner.app_handle())?;
-                inspect.send(path)?;
+                // If we haven't already used the startup window and it's within the startup duration, inspect
+                // this file on the startup window, otherwise create a new window.
+                if !startup_inspect.startup_used.load(Ordering::Relaxed)
+                    && Instant::now().duration_since(startup_inspect.startup_time)
+                        < STARTUP_DURATION
+                {
+                    startup_inspect.startup_used.store(true, Ordering::Relaxed);
+                    startup_inspect.inner.send(path)?;
+                } else {
+                    let inspect = Inspect::new(startup_inspect.inner.app_handle())?;
+                    inspect.send(path)?;
+                }
+
+                // TODO: set window pos to the current mouse pos?
             }
-
-            // TODO: set window pos to the current mouse pos?
         }
 
         Ok(())
