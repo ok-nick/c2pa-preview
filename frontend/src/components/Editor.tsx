@@ -14,7 +14,7 @@ export default function Editor() {
   const [manifest, setManifest] = useState<object | null>(null);
 
   useEffect(() => {
-    // TODO: listen to window theme and change JsonView corrsponding theme
+    // TODO: listen to window theme and change JsonView corresponding theme
 
     let isMounted = true;
     let unlisten: (() => void) | null = null;
