@@ -60,7 +60,11 @@ export default function Editor() {
           objectSortKeys={true}
           displayDataTypes={false}
           displayObjectSize={false}
-          collapsed={3}
+          // TODO: Broken in latest https://github.com/uiwjs/react-json-view/issues/79
+          // collapsed={3}
+          shouldExpandNodeInitially={(_isExpanded, { level }) => {
+            return level <= 3;
+          }}
         />
       )}
     </>
