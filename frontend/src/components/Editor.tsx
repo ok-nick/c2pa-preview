@@ -14,7 +14,7 @@ export default function Editor() {
   const [manifest, setManifest] = useState<object | null>(null);
 
   useEffect(() => {
-    // TODO: listen to window theme and change JsonView corrsponding theme
+    // TODO: listen to window theme and change JsonView corresponding theme
 
     let isMounted = true;
     let unlisten: (() => void) | null = null;
@@ -60,7 +60,11 @@ export default function Editor() {
           objectSortKeys={true}
           displayDataTypes={false}
           displayObjectSize={false}
-          collapsed={3}
+          // TODO: Broken in latest https://github.com/uiwjs/react-json-view/issues/79
+          // collapsed={3}
+          shouldExpandNodeInitially={(_isExpanded, { level }) => {
+            return level <= 3;
+          }}
         />
       )}
     </>

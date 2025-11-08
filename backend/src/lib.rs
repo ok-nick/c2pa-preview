@@ -12,12 +12,11 @@ pub fn run() {
     tauri::Builder::default()
         .setup(|app| {
             let inspect = Inspect::new(app.handle().clone())?;
-            if let Ok(matches) = app.cli().matches() {
-                if let Some(path) = matches.args.get("path") {
-                    if let Some(path) = path.value.as_str() {
-                        inspect.allow_file(Path::new(path));
-                    }
-                }
+            if let Ok(matches) = app.cli().matches()
+                && let Some(path) = matches.args.get("path")
+                && let Some(path) = path.value.as_str()
+            {
+                inspect.allow_file(Path::new(path));
             }
 
             file_ext::load(inspect);
