@@ -8,19 +8,12 @@ on:
       - "**/package-lock.json"
       - "**/package.json"
       - ".github/workflows/check-frontend.yml"
-  pull_request:
-    paths:
-      - "**.tsx"
-      - "**.ts"
-      - "**/package-lock.json"
-      - "**/package.json"
-      - ".github/workflows/check-frontend.yml"
 
 jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: install frontend dependencies
         uses: bahmutov/npm-install@v1
@@ -30,11 +23,11 @@ jobs:
       - name: run eslint
         run: npx eslint --max-warnings=0 "src/**/*.{ts,tsx}"
         working-directory: frontend
-  
+
   format:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: install frontend dependencies
         uses: bahmutov/npm-install@v1

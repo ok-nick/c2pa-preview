@@ -7,18 +7,12 @@ on:
       - "**/Cargo.lock"
       - "**/Cargo.toml"
       - ".github/workflows/check-backend.yml"
-  pull_request:
-    paths:
-      - "**.rs"
-      - "**/Cargo.lock"
-      - "**/Cargo.toml"
-      - ".github/workflows/check-backend.yml"
 
 jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: install dependencies (ubuntu only)
         uses: awalsh128/cache-apt-pkgs-action@v1
@@ -34,7 +28,7 @@ jobs:
       - name: install Rust stable
         uses: dtolnay/rust-toolchain@stable
         with:
-          components: clippy 
+          components: clippy
 
       - name: cache backend dependencies
         uses: Swatinem/rust-cache@v2
@@ -46,11 +40,11 @@ jobs:
         working-directory: ./backend
         env:
           RUSTFLAGS: "-Dwarnings"
-  
+
   format:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: install Rust stable
         uses: dtolnay/rust-toolchain@stable
